@@ -123,7 +123,7 @@ class Dates {
 	 * Resets the cache.
 	 */
 	public static function clear_cache() {
-		return $this->cache = [];
+		return static::$cache = [];
 	}
 
 	/**
@@ -303,7 +303,7 @@ class Dates {
 	 * @return mixed
 	 */
 	public static function get_cache( $key, $default = null ) {
-		return isset( $this->cache[ $key ] ) ? $this->cache[ $key ] : $default;
+		return isset( static::$cache[ $key ] ) ? static::$cache[ $key ] : $default;
 	}
 
 	/**
@@ -649,7 +649,7 @@ class Dates {
 	 * @return bool
 	 */
 	public static function has_cache( $key ) {
-		return isset( $this->cache[ $key ] );
+		return isset( static::$cache[ $key ] );
 	}
 
 	/**
@@ -988,7 +988,7 @@ class Dates {
 	 * @return mixed
 	 */
 	public static function set_cache( $key, $value = null ) {
-		return $this->cache[ $key ] = $value;
+		return static::$cache[ $key ] = $value;
 	}
 
 	/**
