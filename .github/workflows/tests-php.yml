@@ -67,7 +67,7 @@ jobs:
           ${SLIC_BIN} config
       - name: Set up StellarWP DB
         run: |
-          ${SLIC_BIN} use db
+          ${SLIC_BIN} use dates
           ${SLIC_BIN} composer install --ignore-platform-reqs
       - name: Run suite wpunit
         run: ${SLIC_BIN} run ${{ matrix.suite }} --ext DotReporter
