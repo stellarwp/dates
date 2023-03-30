@@ -1,2 +1,2 @@
-# date-utils
+# Dates
 Date utilities
