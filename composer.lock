@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a7f88b126fd18014b64b12b905f5b9e",
+    "content-hash": "b81fab6dcea0cd31f2f892270c1267bf",
     "packages": [],
     "packages-dev": [
         {
@@ -3571,6 +3571,56 @@
                 "source": "https://github.com/WordPress/Requests/tree/v1.8.1"
             },
             "time": "2021-06-04T09:56:25+00:00"
+        },
+        {
+            "name": "saggre/phpdocumentor-markdown",
+            "version": "0.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Saggre/phpDocumentor-markdown.git",
+                "reference": "35cf7221561ce75eba4301b770e329be45c6dba1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Saggre/phpDocumentor-markdown/zipball/35cf7221561ce75eba4301b770e329be45c6dba1",
+                "reference": "35cf7221561ce75eba4301b770e329be45c6dba1",
+                "shasum": ""
+            },
+            "require-dev": {
+                "php": ">=7.4",
+                "phpunit/phpunit": "^9.5",
+                "twig/twig": "2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpDocumentorMarkdown\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Saggre",
+                    "email": "sakri.koskimies@hotmail.com"
+                }
+            ],
+            "description": "Markdown template for phpDocumentor3",
+            "keywords": [
+                "documentation",
+                "github",
+                "gitlab",
+                "markdown",
+                "phpDocumentor",
+                "phpdoc"
+            ],
+            "support": {
+                "issues": "https://github.com/Saggre/phpDocumentor-markdown/issues",
+                "source": "https://github.com/Saggre/phpDocumentor-markdown/tree/0.1.3"
+            },
+            "time": "2022-04-20T17:19:33+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

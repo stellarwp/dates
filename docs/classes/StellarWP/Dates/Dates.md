@@ -1,49 +1,111 @@
+***
+
 # Dates
 
-A collection of date utilities authored by the development team at StellarWP and provided free for the WordPress community.
 
-_This work is forked from the battle-tested date handling done at [The Events Calendar](https://theeventscalendar.com)!_
 
-## Installation
 
-It's recommended that you install Dates as a project dependency via [Composer](https://getcomposer.org/):
 
-```bash
-composer require stellarwp/dates
+* Full name: `\StellarWP\Dates\Dates`
+
+
+## Constants
+
+| Constant | Visibility | Type | Value |
+|:---------|:-----------|:-----|:------|
+|`DATEONLYFORMAT`|public| |&#039;F j, Y&#039;|
+|`TIMEFORMAT`|public| |&#039;g:i A&#039;|
+|`HOURFORMAT`|public| |&#039;g&#039;|
+|`MINUTEFORMAT`|public| |&#039;i&#039;|
+|`MERIDIANFORMAT`|public| |&#039;A&#039;|
+|`DBDATEFORMAT`|public| |&#039;Y-m-d&#039;|
+|`DBDATETIMEFORMAT`|public| |&#039;Y-m-d H:i:s&#039;|
+|`DBTZDATETIMEFORMAT`|public| |&#039;Y-m-d H:i:s O&#039;|
+|`DBTIMEFORMAT`|public| |&#039;H:i:s&#039;|
+|`DBYEARMONTHTIMEFORMAT`|public| |&#039;Y-m&#039;|
+
+## Properties
+
+
+### localized_months_full
+
+
+
+```php
+protected static $localized_months_full
 ```
 
-> We _actually_ recommend that this library gets included in your project using [Strauss](https://github.com/BrianHenryIE/strauss).
->
-> Luckily, adding Strauss to your `composer.json` is only slightly more complicated than adding a typical dependency, so checkout our [strauss docs](https://github.com/stellarwp/global-docs/blob/main/docs/strauss-setup.md).
 
-## Documentation
 
-* [Constants](#constants)
-* [Date methods](#date-methods)
-  * [`build_date_object()`](#build_date_object)
-* [Date objects](#date-objects)
-  * [Date_I18n](#date_i18n)
-  * [Date_I18n_Immutable](#date_i18n_immutable)
-* [Timezones](#timezones)
+* This property is **static**.
 
-### Constants
 
-| Constant | Format | Description |
-|---|---|---|
-| `DATEONLYFORMAT` | `F j, Y` | The date format used for date-only strings. |
-| `TIMEFORMAT` | `g:i A` | The time format used for time-only strings. |
-| `HOURFORMAT` | `g` | The hour format used for hour-only strings. |
-| `MINUTEFORMAT` | `i` | The minute format used for minute-only strings. |
-| `MERIDIANFORMAT` | `A` | The meridian format used for meridian-only strings. |
-| `DBDATEFORMAT` | `Y-m-d` | The date format used for date-only strings in the database. |
-| `DBDATETIMEFORMAT` | `Y-m-d H:i:s` | The date format used for date-time strings in the database. |
-| `DBTZDATETIMEFORMAT` | `Y-m-d H:i:s O` | The date format used for date-time strings in the database with timezone. |
-| `DBTIMEFORMAT` | `H:i:s` | The date format used for time-only strings in the database. |
-| `DBYEARMONTHTIMEFORMAT` | `Y-m` | The date format used for year-month strings in the database. |
+***
 
-### Date methods
+### localized_months_short
 
-#### build_date_object
+
+
+```php
+protected static $localized_months_short
+```
+
+
+
+* This property is **static**.
+
+
+***
+
+### localized_weekdays
+
+
+
+```php
+protected static $localized_weekdays
+```
+
+
+
+* This property is **static**.
+
+
+***
+
+### localized_months
+
+
+
+```php
+protected static $localized_months
+```
+
+
+
+* This property is **static**.
+
+
+***
+
+### cache
+
+
+
+```php
+public static $cache
+```
+
+
+
+* This property is **static**.
+
+
+***
+
+## Methods
+
+
+### build_date_object
 
 Builds a date object from a given datetime and timezone.
 
@@ -51,7 +113,12 @@ Builds a date object from a given datetime and timezone.
 public static build_date_object(string|\DateTime|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true): \DateTime|false
 ```
 
+
+
 * This method is **static**.
+
+
+
 
 **Parameters:**
 
@@ -67,9 +134,11 @@ public static build_date_object(string|\DateTime|int $datetime = &#039;now&#039;
 A DateTime object built using the specified date, time and timezone; if `$with_fallback`
 is set to `false` then `false` will be returned if a DateTime object could not be built.
 
+
+
 ***
 
-#### build_localized_months
+### build_localized_months
 
 Builds arrays of localized full and short months.
 
@@ -77,11 +146,19 @@ Builds arrays of localized full and short months.
 private static build_localized_months(): mixed
 ```
 
+
+
 * This method is **static**.
+
+
+
+
+
+
 
 ***
 
-#### build_localized_weekdays
+### build_localized_weekdays
 
 Builds arrays of localized full, short and initialized weekdays.
 
@@ -89,11 +166,19 @@ Builds arrays of localized full, short and initialized weekdays.
 private static build_localized_weekdays(): mixed
 ```
 
+
+
 * This method is **static**.
+
+
+
+
+
+
 
 ***
 
-#### clear_cache
+### clear_cache
 
 Resets the cache.
 
@@ -101,11 +186,19 @@ Resets the cache.
 public static clear_cache(): mixed
 ```
 
+
+
 * This method is **static**.
+
+
+
+
+
+
 
 ***
 
-#### date_diff
+### date_diff
 
 The number of days between two arbitrary dates.
 
@@ -113,7 +206,12 @@ The number of days between two arbitrary dates.
 public static date_diff(string $date1, string $date2): int
 ```
 
+
+
 * This method is **static**.
+
+
+
 
 **Parameters:**
 
@@ -127,9 +225,11 @@ public static date_diff(string $date1, string $date2): int
 
 The number of days between two dates.
 
+
+
 ***
 
-#### date_only
+### date_only
 
 Returns the date only.
 
@@ -137,7 +237,12 @@ Returns the date only.
 public static date_only(int|string $date, bool $isTimestamp = false, string|null $format = null): string
 ```
 
+
+
 * This method is **static**.
+
+
+
 
 **Parameters:**
 
@@ -152,9 +257,11 @@ public static date_only(int|string $date, bool $isTimestamp = false, string|null
 
 The date only in DB format.
 
+
+
 ***
 
-#### datetime_from_format
+### datetime_from_format
 
 As PHP 5.2 doesn't have a good version of `date_parse_from_format`, this is how we deal with
 possible weird datepicker formats not working
@@ -163,7 +270,12 @@ possible weird datepicker formats not working
 public static datetime_from_format(string $format, string $date): string|bool
 ```
 
+
+
 * This method is **static**.
+
+
+
 
 **Parameters:**
 
@@ -177,9 +289,11 @@ public static datetime_from_format(string $format, string $date): string|bool
 
 A DB formated Date, includes time if possible
 
+
+
 ***
 
-#### first_day_in_month
+### first_day_in_month
 
 Returns the weekday of the 1st day of the month in
 "w" format (ie, Sunday is 0 and Saturday is 6) or
@@ -189,7 +303,12 @@ false if this cannot be established.
 public static first_day_in_month(mixed $month): int|bool
 ```
 
+
+
 * This method is **static**.
+
+
+
 
 **Parameters:**
 
@@ -197,9 +316,12 @@ public static first_day_in_month(mixed $month): int|bool
 |-----------|------|-------------|
 | `$month` | **mixed** |  |
 
+
+
+
 ***
 
-#### get_cache
+### get_cache
 
 Gets a value from the cache.
 
@@ -207,7 +329,12 @@ Gets a value from the cache.
 public static get_cache(string $key, mixed $default = null): mixed
 ```
 
+
+
 * This method is **static**.
+
+
+
 
 **Parameters:**
 
@@ -216,15 +343,20 @@ public static get_cache(string $key, mixed $default = null): mixed
 | `$key` | **string** |  |
 | `$default` | **mixed** |  |
 
+
+
+
 ***
 
-#### get_first_day_of_week_in_month
+### get_first_day_of_week_in_month
 
 Gets the first day of the week in a month (ie the first Tuesday).
 
 ```php
 public static get_first_day_of_week_in_month(int $curdate, int $day_of_week): int
 ```
+
+
 
 * This method is **static**.
 
@@ -247,7 +379,7 @@ The timestamp of the date that fits the qualifications.
 
 ***
 
-#### get_last_day_of_month
+### get_last_day_of_month
 
 Returns the last day of the month given a php date.
 
@@ -277,7 +409,7 @@ The last day of the month.
 
 ***
 
-#### get_last_day_of_week_in_month
+### get_last_day_of_week_in_month
 
 Gets the last day of the week in a month (ie the last Tuesday).  Passing in -1 gives you the last day in the month.
 
@@ -308,7 +440,7 @@ The timestamp of the date that fits the qualifications.
 
 ***
 
-#### get_localized_months_full
+### get_localized_months_full
 
 Returns an array of localized full month names.
 
@@ -328,7 +460,7 @@ public static get_localized_months_full(): array
 
 ***
 
-#### get_localized_months_short
+### get_localized_months_short
 
 Returns an array of localized short month names.
 
@@ -348,7 +480,7 @@ public static get_localized_months_short(): array
 
 ***
 
-#### get_localized_weekdays_full
+### get_localized_weekdays_full
 
 Returns an array of localized full week day names.
 
@@ -368,7 +500,7 @@ public static get_localized_weekdays_full(): array
 
 ***
 
-#### get_localized_weekdays_initial
+### get_localized_weekdays_initial
 
 Returns an array of localized week day initials.
 
@@ -388,7 +520,7 @@ public static get_localized_weekdays_initial(): array
 
 ***
 
-#### get_localized_weekdays_short
+### get_localized_weekdays_short
 
 Returns an array of localized short week day names.
 
@@ -408,7 +540,7 @@ public static get_localized_weekdays_short(): array
 
 ***
 
-#### get_modifier_from_offset
+### get_modifier_from_offset
 
 Accepts a numeric offset (such as "4" or "-6" as stored in the gmt_offset
 option) and converts it to a strtotime() style modifier that can be used
@@ -436,7 +568,7 @@ public static get_modifier_from_offset( $offset): string
 
 ***
 
-#### get_week_start_end
+### get_week_start_end
 
 Returns the DateTime object representing the start of the week for a date.
 
@@ -470,7 +602,7 @@ The week start has its time set to `00:00:00`, the week end will have its time s
 
 ***
 
-#### get_weekday_timestamp
+### get_weekday_timestamp
 
 Gets the timestamp of a day in week, month and year context.
 
@@ -511,7 +643,7 @@ The day timestamp
 
 ***
 
-#### has_cache
+### has_cache
 
 Determines if a cache value exists.
 
@@ -537,7 +669,7 @@ public static has_cache(string $key): bool
 
 ***
 
-#### hour_only
+### hour_only
 
 Returns the hour only.
 
@@ -567,7 +699,7 @@ The hour only.
 
 ***
 
-#### immutable
+### immutable
 
 Builds the immutable version of a date from a string, integer (timestamp) or \DateTime object.
 
@@ -601,7 +733,7 @@ DateTime object could not be built.
 
 ***
 
-#### interval
+### interval
 
 Builds and returns a `DateInterval` object from the interval specification.
 
@@ -632,7 +764,7 @@ The built date interval object.
 
 ***
 
-#### is_now
+### is_now
 
 Determine if "now" is between two dates.
 
@@ -664,7 +796,7 @@ Whether the current datetime (or passed "now") is between the passed start and e
 
 ***
 
-#### is_timestamp
+### is_timestamp
 
 check if a given string is a timestamp
 
@@ -690,7 +822,7 @@ public static is_timestamp( $timestamp): bool
 
 ***
 
-#### is_valid_date
+### is_valid_date
 
 Validates a date string to make sure it can be used to build DateTime objects.
 
@@ -721,7 +853,7 @@ like `strtotime`, or not.
 
 ***
 
-#### is_weekday
+### is_weekday
 
 Returns true if the timestamp is a weekday.
 
@@ -751,7 +883,7 @@ If the timestamp is a weekday.
 
 ***
 
-#### is_weekend
+### is_weekend
 
 Returns true if the timestamp is a weekend.
 
@@ -781,7 +913,7 @@ If the timestamp is a weekend.
 
 ***
 
-#### last_day_in_month
+### last_day_in_month
 
 Returns the weekday of the last day of the month in
 "w" format (ie, Sunday is 0 and Saturday is 6) or
@@ -809,7 +941,7 @@ public static last_day_in_month(mixed $month): int|bool
 
 ***
 
-#### meridian_only
+### meridian_only
 
 Returns the meridian (am or pm) only.
 
@@ -839,7 +971,7 @@ The meridian only in DB format.
 
 ***
 
-#### minutes_only
+### minutes_only
 
 Returns the minute only.
 
@@ -869,7 +1001,7 @@ The minute only.
 
 ***
 
-#### mutable
+### mutable
 
 Builds a date object from a given datetime and timezone.
 
@@ -902,7 +1034,7 @@ is set to `false` then `false` will be returned if a DateTime object could not b
 
 ***
 
-#### number_to_ordinal
+### number_to_ordinal
 
 From http://php.net/manual/en/function.date.php
 
@@ -932,7 +1064,7 @@ The ordinal for that number.
 
 ***
 
-#### range_coincides
+### range_coincides
 
 Given 2 datetime ranges, return whether the 2nd one occurs during the 1st one
 Note: all params should be unix timestamps
@@ -962,7 +1094,7 @@ public static range_coincides(int $range_1_start, int $range_1_end, int $range_2
 
 ***
 
-#### reformat
+### reformat
 
 Accepts a string representing a date/time and attempts to convert it to
 the specified format, returning an empty string if this is not possible.
@@ -990,7 +1122,7 @@ public static reformat( $dt_string,  $new_format): string
 
 ***
 
-#### round_nearest_half_hour
+### round_nearest_half_hour
 
 Returns as string the nearest half a hour for a given valid string datetime.
 
@@ -1020,7 +1152,7 @@ Rounded datetime string
 
 ***
 
-#### set_cache
+### set_cache
 
 Sets a value in the cache.
 
@@ -1047,7 +1179,7 @@ public static set_cache(string $key, mixed $value = null): mixed
 
 ***
 
-#### sort
+### sort
 
 Sort an array of dates.
 
@@ -1078,7 +1210,7 @@ A sorted array of DateTime objects.
 
 ***
 
-#### time_between
+### time_between
 
 Returns the number of seconds (absolute value) between two dates/times.
 
@@ -1109,7 +1241,7 @@ The number of seconds between the dates.
 
 ***
 
-#### time_only
+### time_only
 
 Returns the time only.
 
@@ -1139,7 +1271,7 @@ The time only in DB format.
 
 ***
 
-#### unescape_date_format
+### unescape_date_format
 
 Unescapes date format strings to be used in functions like `date`.
 
@@ -1169,7 +1301,7 @@ Either the original input or an unescaped date format string.
 
 ***
 
-#### week_ends_on
+### week_ends_on
 
 Returns the day of the week the week ends on, expressed as a "w" value
 (ie, Sunday is 0 and Saturday is 6).
@@ -1196,7 +1328,7 @@ public static week_ends_on(int $week_starts_on): int
 
 ***
 
-#### wp_strtotime
+### wp_strtotime
 
 Converts a locally-formatted date to a unix timestamp. This is a drop-in
 replacement for `strtotime()`, except that where strtotime assumes GMT, this
@@ -1230,11 +1362,11 @@ UNIX timestamp.
 
 **See Also:**
 
-* \StellarWP\Dates\strtotime() -
+* \StellarWP\Dates\strtotime() - 
 
 ***
 
-#### wp_locale_weekday
+### wp_locale_weekday
 
 Return a WP Locale weekday in the specified format
 
@@ -1261,7 +1393,7 @@ public static wp_locale_weekday(int|string $weekday, string $format = &#039;week
 
 ***
 
-#### wp_locale_month
+### wp_locale_month
 
 Return a WP Locale month in the specified format
 
@@ -1286,12 +1418,8 @@ public static wp_locale_month(int|string $month, string $format = &#039;month&#0
 
 
 
+***
 
 
-### Date objects
-
-#### Date_I18n
-
-#### Date_I18n_Immutable
-
-### Timezones
+***
+> Automatically generated from source code comments on 2023-03-30 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
