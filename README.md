@@ -1,8 +1,8 @@
-# Dates
+# StellarWP Dates
 
 [![Tests](https://github.com/stellarwp/dates/workflows/Tests/badge.svg)](https://github.com/stellarwp/dates/actions?query=branch%3Amain) [![Static Analysis](https://github.com/stellarwp/dates/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/stellarwp/dates/actions/workflows/static-analysis.yml)
 
-A collection of date utilities authored by the development team at StellarWP and provided free for the WordPress community.
+A collection of date utilities authored by the development team at [StellarWP](https://stellarwp.com) and provided free for the WordPress community.
 
 _This work is forked from the battle-tested date handling done at [The Events Calendar](https://theeventscalendar.com)!_
 
