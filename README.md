@@ -76,7 +76,6 @@ composer require stellarwp/dates
   * [format_i18n](/docs/classes/StellarWP/Dates/Date_I18n_Immutable.md#format_i18n)
 * [Timezones](/docs/classes/StellarWP/Dates/Timezones.md)
   * [abbr](/docs/classes/StellarWP/Dates/Timezones.md#abbr)
-  * [adjust_timestamp](/docs/classes/StellarWP/Dates/Timezones.md#adjust_timestamp)
   * [apply_offset](/docs/classes/StellarWP/Dates/Timezones.md#apply_offset)
   * [build_timezone_object](/docs/classes/StellarWP/Dates/Timezones.md#build_timezone_object)
   * [clear_site_timezone_abbr](/docs/classes/StellarWP/Dates/Timezones.md#clear_site_timezone_abbr)

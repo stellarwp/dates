@@ -1366,33 +1366,6 @@ UNIX timestamp.
 
 ***
 
-### wp_locale_weekday
-
-Return a WP Locale weekday in the specified format
-
-```php
-public static wp_locale_weekday(int|string $weekday, string $format = &#039;weekday&#039;): string
-```
-
-
-
-* This method is **static**.
-
-
-
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$weekday` | **int&#124;string** | Day of week |
-| `$format` | **string** | Weekday format: full, weekday, initial, abbreviation, abbrev, abbr, short |
-
-
-
-
-***
-
 ### wp_locale_month
 
 Return a WP Locale month in the specified format
@@ -1414,6 +1387,33 @@ public static wp_locale_month(int|string $month, string $format = &#039;month&#0
 |-----------|------|-------------|
 | `$month` | **int&#124;string** | Month of year |
 | `$format` | **string** | Month format: full, month, abbreviation, abbrev, abbr, short |
+
+
+
+
+***
+
+### wp_locale_weekday
+
+Return a WP Locale weekday in the specified format
+
+```php
+public static wp_locale_weekday(int|string $weekday, string $format = &#039;weekday&#039;): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$weekday` | **int&#124;string** | Day of week |
+| `$format` | **string** | Weekday format: full, weekday, initial, abbreviation, abbrev, abbr, short |
 
 
 
