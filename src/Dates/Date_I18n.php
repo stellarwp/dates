@@ -4,7 +4,7 @@ namespace StellarWP\Dates;
 /**
  * Extends DateTime and includes translation capabilities.
  *
- * @since   1.0.0
+ * @since 1.0.0
  */
 
 use DateTime;
