@@ -70,7 +70,7 @@ class Dates {
 				return new Date_I18n( '@' . $datetime, $timestamp_timezone );
 			}
 
-			set_error_handler( 'sswpss_catch_and_throw' );
+			set_error_handler( 'stellarwp_dates_catch_and_throw' );
 			$date = new Date_I18n( $datetime, $timezone_object );
 			restore_error_handler();
 		} catch ( Exception $e ) {
