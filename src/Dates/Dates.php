@@ -511,7 +511,7 @@ class Dates {
 	public static function get_week_start_end( $date, $start_of_week = null ) {
 		static $cache_var_name = __FUNCTION__;
 
-		$cache_week_start_end = isset( static::$cache[ $cache_var_name ] ) ? static::$cache[ $cache_var_name ] : [];
+		$cache_week_start_end = static::get_cache( $cache_var_name, [] );
 
 		$date_obj = static::build_date_object( $date );
 		$date_obj->setTime( 0, 0, 0 );
@@ -533,7 +533,7 @@ class Dates {
 			__METHOD__ . serialize( [ $date_obj->format( static::DBDATEFORMAT ), $week_start_day ] )
 		);
 
-		$cached = isset( static::$cache[ $cache_key ] ) ? static::$cache[ $cache_key ] : false;
+		$cached = static::get_cache( $cache_key, false );
 
 		if ( false !== $cached ) {
 			return $cached;
@@ -573,10 +573,10 @@ class Dates {
 		$week_start = static::immutable( $week_start );
 		$week_end   = static::immutable( $week_end );
 
-		static::$cache[ $cache_key ]               = [ $week_start, $week_end ];
+		static::set_cache( $cache_key, [ $week_start, $week_end ] );
 		$cache_week_start_end[ $memory_cache_key ] = [ $week_start, $week_end ];
 
-		static::$cache[ $cache_var_name ] = $cache_week_start_end;
+		static::set_cache( $cache_var_name, $cache_week_start_end );
 
 		return [ $week_start, $week_end ];
 	}
@@ -700,7 +700,7 @@ class Dates {
 
 		$cache_key = md5( ( __METHOD__ . $mutable->getTimezone()->getName() . $mutable->getTimestamp() ) );
 
-		$cached = isset( static::$cache[ $cache_key ] ) ? static::$cache[ $cache_key ] : false;
+		$cached = static::get_cache( $cache_key, false );
 
 		if ( false !== $cached ) {
 			return $cached;
@@ -708,7 +708,7 @@ class Dates {
 
 		$immutable = Date_I18n_Immutable::createFromMutable( $mutable );
 
-		static::$cache[ $cache_key ] = $immutable;
+		static::set_cache( $cache_key, $immutable );
 
 		return $immutable;
 	}
@@ -798,7 +798,7 @@ class Dates {
 	public static function is_valid_date( $date ) {
 		static $cache_var_name = __FUNCTION__;
 
-		$cache_date_check = isset( static::$cache[ $cache_var_name ] ) ? static::$cache[ $cache_var_name ] : [];
+		$cache_date_check = static::get_cache( $cache_var_name, [] );
 
 		if ( isset( $cache_date_check[ $date ] ) ) {
 			return $cache_date_check[ $date ];
@@ -806,7 +806,7 @@ class Dates {
 
 		$cache_date_check[ $date ] = self::build_date_object( $date, null, false ) instanceof DateTimeInterface;
 
-		static::$cache[ $cache_var_name ] = $cache_date_check;
+		static::set_cache( $cache_var_name, $cache_date_check );
 
 		return $cache_date_check[ $date ];
 	}
@@ -1109,14 +1109,14 @@ class Dates {
 			return strtotime( $string );
 		}
 
-		if ( ! isset( static::$cache['option_timezone_string'] ) ) {
-			static::$cache['option_timezone_string'] = get_option( 'timezone_string' );
+		if ( ! static::get_cache( 'option_timezone_string' ) ) {
+			static::set_cache( 'option_timezone_string', get_option( 'timezone_string' ) );
 		}
-		if ( ! isset( static::$cache['option_gmt_offset'] ) ) {
-			static::$cache['option_gmt_offset'] = get_option( 'gmt_offset' );
+		if ( ! static::get_cache( 'option_gmt_offset' ) ) {
+			static::set_cache( 'option_gmt_offset', get_option( 'gmt_offset' ) );
 		}
 
-		$tz = static::$cache['option_timezone_string'];
+		$tz = static::get_cache( 'option_timezone_string' );
 		if ( ! empty( $tz ) ) {
 			$date = date_create( $string, new DateTimeZone( $tz ) );
 			if ( ! $date ) {
@@ -1125,7 +1125,7 @@ class Dates {
 			$date->setTimezone( new DateTimeZone( 'UTC' ) );
 			return (int) $date->format( 'U' );
 		} else {
-			$offset = (float) static::$cache['option_gmt_offset'];
+			$offset = (float) static::get_cache( 'option_gmt_offset' );
 			$seconds = intval( $offset * HOUR_IN_SECONDS );
 			$timestamp = strtotime( $string ) - $seconds;
 			return $timestamp;

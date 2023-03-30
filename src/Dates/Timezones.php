@@ -140,7 +140,7 @@ class Timezones {
 			return $timezone;
 		}
 
-		$cached = isset( Dates::$cache[ __METHOD__ . $timezone ] ) ? Dates::$cache[ __METHOD__ . $timezone ] : null;
+		$cached = Dates::get_cache( __METHOD__ . $timezone );
 
 		if ( is_string( $timezone ) && $cached ) {
 			return clone $cached;
@@ -155,7 +155,7 @@ class Timezones {
 		}
 
 		if ( is_string( $timezone ) ) {
-			Dates::$cache[ __METHOD__ . $timezone ] = $object;
+			Dates::set_cache( __METHOD__ . $timezone, $object );
 		}
 
 		return $object;
@@ -579,15 +579,15 @@ class Timezones {
 	 * @return string
 	 */
 	public static function wp_timezone_string() {
-		if ( empty( Dates::$cache['option_timezone_string'] ) ) {
-			Dates::$cache['option_timezone_string'] = get_option( 'timezone_string' );
+		if ( empty( Dates::get_cache( 'option_timezone_string' ) ) ) {
+			Dates::set_cache( 'option_timezone_string', get_option( 'timezone_string' ) );
 		}
-		if ( ! isset( Dates::$cache['option_gmt_offset'] ) ) {
-			Dates::$cache['option_gmt_offset'] = get_option( 'gmt_offset' );
+		if ( ! Dates::get_cache( 'option_gmt_offset' ) ) {
+			Dates::set_cache( 'option_gmt_offset', get_option( 'gmt_offset' ) );
 		}
 
-		$current_offset = Dates::$cache['option_gmt_offset'];
-		$tzstring       = Dates::$cache['option_timezone_string'];
+		$current_offset = Dates::get_cache( 'option_gmt_offset' );
+		$tzstring       = Dates::get_cache( 'option_timezone_string' );
 
 		// Return the timezone string if already set
 		if ( ! empty( $tzstring ) ) {
