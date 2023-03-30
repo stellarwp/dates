@@ -1133,80 +1133,6 @@ class Dates {
 	}
 
 	/**
-	 * Return a WP Locale weekday in the specified format
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int|string $weekday Day of week
-	 * @param string $format Weekday format: full, weekday, initial, abbreviation, abbrev, abbr, short
-	 *
-	 * @return string
-	 */
-	public static function wp_locale_weekday( $weekday, $format = 'weekday' ) {
-		$weekday = trim( $weekday );
-
-		$valid_formats = [
-			'full',
-			'weekday',
-			'initial',
-			'abbreviation',
-			'abbrev',
-			'abbr',
-			'short',
-		];
-
-		// if there isn't a valid format, bail without providing a localized string
-		if ( ! in_array( $format, $valid_formats ) ) {
-			return $weekday;
-		}
-
-		if ( empty( self::$localized_weekdays ) ) {
-			self::build_localized_weekdays();
-		}
-
-		// if the weekday isn't numeric, we need to convert to numeric in order to
-		// leverage self::localized_weekdays
-		if ( ! is_numeric( $weekday ) ) {
-			$days_of_week = [
-				'Sun',
-				'Mon',
-				'Tue',
-				'Wed',
-				'Thu',
-				'Fri',
-				'Sat',
-			];
-
-			$day_index = array_search( ucwords( substr( $weekday, 0, 3 ) ), $days_of_week );
-
-			if ( false === $day_index ) {
-				return $weekday;
-			}
-
-			$weekday = $day_index;
-		}
-
-		switch ( $format ) {
-			case 'initial':
-				$type = 'initial';
-				break;
-			case 'abbreviation':
-			case 'abbrev':
-			case 'abbr':
-			case 'short':
-				$type = 'short';
-				break;
-			case 'weekday':
-			case 'full':
-			default:
-				$type = 'full';
-				break;
-		}
-
-		return self::$localized_weekdays[ $type ][ $weekday ];
-	}
-
-	/**
 	 * Return a WP Locale month in the specified format
 	 *
 	 * @since 1.0.0
@@ -1279,5 +1205,79 @@ class Dates {
 		$type = ( 'full' === $format || 'month' === $format ) ? 'full' : 'short';
 
 		return self::$localized_months[ $type ][ $month_num ];
+	}
+
+	/**
+	 * Return a WP Locale weekday in the specified format
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int|string $weekday Day of week
+	 * @param string $format Weekday format: full, weekday, initial, abbreviation, abbrev, abbr, short
+	 *
+	 * @return string
+	 */
+	public static function wp_locale_weekday( $weekday, $format = 'weekday' ) {
+		$weekday = trim( $weekday );
+
+		$valid_formats = [
+			'full',
+			'weekday',
+			'initial',
+			'abbreviation',
+			'abbrev',
+			'abbr',
+			'short',
+		];
+
+		// if there isn't a valid format, bail without providing a localized string
+		if ( ! in_array( $format, $valid_formats ) ) {
+			return $weekday;
+		}
+
+		if ( empty( self::$localized_weekdays ) ) {
+			self::build_localized_weekdays();
+		}
+
+		// if the weekday isn't numeric, we need to convert to numeric in order to
+		// leverage self::localized_weekdays
+		if ( ! is_numeric( $weekday ) ) {
+			$days_of_week = [
+				'Sun',
+				'Mon',
+				'Tue',
+				'Wed',
+				'Thu',
+				'Fri',
+				'Sat',
+			];
+
+			$day_index = array_search( ucwords( substr( $weekday, 0, 3 ) ), $days_of_week );
+
+			if ( false === $day_index ) {
+				return $weekday;
+			}
+
+			$weekday = $day_index;
+		}
+
+		switch ( $format ) {
+			case 'initial':
+				$type = 'initial';
+				break;
+			case 'abbreviation':
+			case 'abbrev':
+			case 'abbr':
+			case 'short':
+				$type = 'short';
+				break;
+			case 'weekday':
+			case 'full':
+			default:
+				$type = 'full';
+				break;
+		}
+
+		return self::$localized_weekdays[ $type ][ $weekday ];
 	}
 }
