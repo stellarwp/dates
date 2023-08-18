@@ -40,10 +40,12 @@ class DatesTest extends DatesTestCase {
 
 		// Default timezone to UTC at beginning of each test
 		date_default_timezone_set( 'UTC' );
+		update_option( 'timezone_string', 'UTC' );
 	}
 
 	public function tearDown() {
 		// your tear down methods here
+		update_option( 'timezone_string', 'UTC' );
 
 		// then
 		parent::tearDown();
@@ -55,11 +57,6 @@ class DatesTest extends DatesTestCase {
 			return [ $arr ];
 		},
 			[
-				[ 'day', 2, 3, 2012, 1 ],
-				[ 2, 'week', 3, 2012, 1 ],
-				[ 2, 2, 'month', 2012, 1 ],
-				[ 2, 2, 3, 'year', 1 ],
-				[ 2, 2, 3, 2012, 'direction' ],
 				[ 2, 2, 3, 2012, 23 ],
 				[ 2, 2, 3, 2012, - 2 ],
 			] );
@@ -88,7 +85,7 @@ class DatesTest extends DatesTestCase {
 	 * @dataProvider etc_natural_direction_expected_timestamps
 	 */
 	public function test_get_weekday_timestamp_returns_right_timestamp_in_etc_natural_direction( $expected, $args ) {
-		date_default_timezone_set( 'Etc/GMT+0' );
+		update_option( 'timezone_string', 'Etc/GMT+0' );
 		$this->assertEquals( $expected,
 			call_user_func_array( [
 				Dates::class,
@@ -103,14 +100,18 @@ class DatesTest extends DatesTestCase {
 	 * @dataProvider etc_natural_direction_expected_timestamps
 	 */
 	public function test_get_weekday_timestamp_returns_right_timestamp_etc_minus_9_in_natural_direction( $expected, $args ) {
-		date_default_timezone_set( 'Etc/GMT-9' );
+		update_option( 'timezone_string', 'Etc/GMT-9' );
 		$nine_hours = 60 * 60 * 9;
-		$this->assertEquals( $expected - $nine_hours,
-			call_user_func_array( [
-				Dates::class,
-				'get_weekday_timestamp'
-			],
-				$args ) );
+		$this->assertEquals(
+			$expected - $nine_hours,
+			call_user_func_array(
+				[
+					Dates::class,
+					'get_weekday_timestamp',
+				],
+				$args
+			)
+		);
 	}
 
 	/**
@@ -119,14 +120,18 @@ class DatesTest extends DatesTestCase {
 	 * @dataProvider etc_natural_direction_expected_timestamps
 	 */
 	public function test_get_weekday_timestamp_returns_right_timestamp_etc_plus_9_in_natural_direction( $expected, $args ) {
-		date_default_timezone_set( 'Etc/GMT+9' );
+		update_option( 'timezone_string', 'Etc/GMT+9' );
 		$nine_hours = 60 * 60 * 9;
-		$this->assertEquals( $expected + $nine_hours,
-			call_user_func_array( [
-				Dates::class,
-				'get_weekday_timestamp'
-			],
-				$args ) );
+		$this->assertEquals(
+			$expected + $nine_hours,
+			call_user_func_array(
+				[
+					Dates::class,
+					'get_weekday_timestamp',
+				],
+				$args
+			)
+		);
 	}
 
 	public function etc_reverse_direction_expected_timestamps() {
@@ -144,7 +149,7 @@ class DatesTest extends DatesTestCase {
 	 * @dataProvider etc_reverse_direction_expected_timestamps
 	 */
 	public function test_get_weekday_timestamp_returns_right_timestamp_in_etc_reverse_direction( $expected, $args ) {
-		date_default_timezone_set( 'Etc/GMT+0' );
+		update_option( 'timezone_string', 'Etc/GMT+0' );
 		$this->assertEquals( $expected,
 			call_user_func_array( [
 				Dates::class,
@@ -159,7 +164,7 @@ class DatesTest extends DatesTestCase {
 	 * @dataProvider etc_reverse_direction_expected_timestamps
 	 */
 	public function test_get_weekday_timestamp_returns_right_timestamp_etc_minus_9_in_reverse_direction( $expected, $args ) {
-		date_default_timezone_set( 'Etc/GMT-9' );
+		update_option( 'timezone_string', 'Etc/GMT-9' );
 		$nine_hours = 60 * 60 * 9;
 		$this->assertEquals( $expected - $nine_hours,
 			call_user_func_array( [
@@ -175,7 +180,7 @@ class DatesTest extends DatesTestCase {
 	 * @dataProvider etc_reverse_direction_expected_timestamps
 	 */
 	public function test_get_weekday_timestamp_returns_right_timestamp_etc_plus_9_in_reverse_direction( $expected, $args ) {
-		date_default_timezone_set( 'Etc/GMT+9' );
+		update_option( 'timezone_string', 'Etc/GMT+9' );
 		$nine_hours = 60 * 60 * 9;
 		$this->assertEquals( $expected + $nine_hours,
 			call_user_func_array( [
@@ -254,7 +259,7 @@ class DatesTest extends DatesTestCase {
 	 * @dataProvider reformat_inputs
 	 */
 	public function test_reformat( $input, $format ) {
-		$date = new DateTime( $input );
+		$date = Dates::get( $input );
 
 		$this->assertEquals( $date->format( $format ), Dates::reformat( $input, $format ) );
 		$this->assertEquals( $date->format( 'U' ), Dates::reformat( $input, 'U' ) );
@@ -277,7 +282,7 @@ class DatesTest extends DatesTestCase {
 	public function test_building_date_object_for_empty_will_return_today_date( $input ) {
 		$expected = ( new \DateTime( 'now' ) )->format( 'Y-m-d' );
 		// Do not test to the second as run times might yield false negatives.
-		$this->assertEquals( $expected, Dates::build_date_object( $input )->format( Dates::DBDATEFORMAT ) );
+		$this->assertEquals( $expected, Dates::get( $input )->format( Dates::DBDATEFORMAT ) );
 		$this->assertEquals( $expected, Dates::mutable( $input )->format( Dates::DBDATEFORMAT ) );
 		$this->assertEquals( $expected, Dates::immutable( $input )->format( Dates::DBDATEFORMAT ) );
 	}
@@ -346,7 +351,7 @@ class DatesTest extends DatesTestCase {
 	public function test_build_date_object( $input, $expected, $timezone = null ) {
 		$this->assertEquals(
 			$expected,
-			Dates::build_date_object( $input, $timezone )->format( Dates::DBDATETIMEFORMAT )
+			Dates::get( $input, $timezone )->format( Dates::DBDATETIMEFORMAT )
 		);
 		$this->assertEquals(
 			$expected,

@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
+use RuntimeException;
 
 class Dates {
 	// Default formats, they are overridden by WP options or by arguments to date methods
@@ -103,6 +104,29 @@ class Dates {
 			self::$localized_weekdays['short'][ $i ]   = $wp_locale->get_weekday_abbrev( $day );
 			self::$localized_weekdays['initial'][ $i ] = $wp_locale->get_weekday_initial( $day );
 		}
+	}
+
+	/**
+	 * A convenience function used to cast errors to exceptions.
+	 *
+	 * Use in `set_error_handler` calls:
+	 *
+	 *      try{
+	 *          set_error_handler( [ __CLASS__, 'catch_and_throw' ] );
+	 *          // ...do something that could generate an error...
+	 *          restore_error_handler();
+	 *      } catch ( RuntimeException $e ) {
+	 *          // Handle the exception.
+	 *      }
+	 *
+	 * @see   set_error_handler()
+	 * @see   restore_error_handler()
+	 * @since 1.1.0
+	 *
+	 * @throws RuntimeException The message will be the error message, the code will be the error code.
+	 */
+	public static function catch_and_throw( $errno, $errstr ) {
+		throw new RuntimeException( $errstr, $errno );
 	}
 
 	/**
@@ -334,17 +358,17 @@ class Dates {
 			)
 			&& ! (
 				$day_of_week == -1
-				&& self::is_weekday( $nextdate->format( 'U' ) )
+				&& self::is_weekday( $nextdate->getTimestamp() )
 			)
 			&& ! (
 				$day_of_week == -2
-				&& self::is_weekend( $nextdate->format( 'U' ) )
+				&& self::is_weekend( $nextdate->getTimestamp() )
 			)
 		) {
 			$nextdate = static::get( $nextdate->format( static::DBDATETIMEFORMAT ) . ' + 1 day' );
 		}
 
-		return (int) $nextdate->format( 'U' );
+		return $nextdate->getTimestamp();
 	}
 
 	/**
@@ -374,7 +398,7 @@ class Dates {
 	 */
 	public static function get_last_day_of_week_in_month( $curdate, int $day_of_week ): int {
 		$curdate           = static::get( $curdate );
-		$last_day_of_month = (int) static::get_last_day_of_month( $curdate->format( 'U' ) );
+		$last_day_of_month = (int) static::get_last_day_of_month( $curdate->getTimestamp() );
 		$curdate_string    = $curdate->format( "Y-m-{$last_day_of_month} H:i:s" );
 		$nextdate          = static::get( $curdate_string );
 
@@ -382,7 +406,7 @@ class Dates {
 			$nextdate = $nextdate->modify( '-1 day' );
 		}
 
-		return (int) $nextdate->format( 'U' );
+		return $nextdate->getTimestamp();
 	}
 
 	/**
@@ -620,17 +644,17 @@ class Dates {
 	 * "The first Monday of April 2016 - `get_day_timestamp( 1, 1, 4, 2016, 1)`
 	 * "The penultimate Thursday of January 2012" - `get_day_timestamp( 4, 2, 1, 2012, -1)`
 	 *
-	 * @param int $day_of_week    The day representing the number in the week, Monday is `1`, Tuesday is `2`, Sunday is `7`
-	 * @param int $week_in_month  The week number in the month; first week is `1`, second week is `2`; when direction is reverse
-	 *                            then `1` is last week of the month, `2` is penultimate week of the month and so on.
-	 * @param int $month          The month number in the year, January is `1`
-	 * @param int $year           The year number, e.g. "2015"
-	 * @param int $week_direction Either `1` or `-1`; the direction for the search referring to the week, defaults to `1`
-	 *                            to specify weeks in natural order so:
-	 *                            $week_direction `1` and $week_in_month `1` means "first week of the month"
-	 *                            $week_direction `1` and $week_in_month `3` means "third week of the month"
-	 *                            $week_direction `-1` and $week_in_month `1` means "last week of the month"
-	 *                            $week_direction `-1` and $week_in_month `2` means "penultimmate week of the month"
+	 * @param int          $day_of_week    The day representing the number in the week, Monday is `1`, Tuesday is `2`, Sunday is `7`
+	 * @param int          $week_in_month  The week number in the month; first week is `1`, second week is `2`; when direction is reverse
+	 *                                     then `1` is last week of the month, `2` is penultimate week of the month and so on.
+	 * @param int          $month          The month number in the year, January is `1`
+	 * @param int          $year           The year number, e.g. "2015"
+	 * @param int          $week_direction Either `1` or `-1`; the direction for the search referring to the week, defaults to `1`
+	 *                                     to specify weeks in natural order so:
+	 *                                     $week_direction `1` and $week_in_month `1` means "first week of the month"
+	 *                                     $week_direction `1` and $week_in_month `3` means "third week of the month"
+	 *                                     $week_direction `-1` and $week_in_month `1` means "last week of the month"
+	 *                                     $week_direction `-1` and $week_in_month `2` means "penultimmate week of the month"
 	 *
 	 * @return int|bool The day timestamp
 	 */
@@ -657,7 +681,7 @@ class Dates {
 		$offset       += $week_direction * ( $week_in_month * 7 ) + ( $day_of_week - $weekday );
 		$offset_start = $startday + $offset;
 
-		return (int) static::get( "{$year}-{$month}-{$offset_start}" )->format( 'U' );
+		return static::get( "{$year}-{$month}-{$offset_start}" )->getTimestamp();
 	}
 
 	/**
@@ -796,15 +820,30 @@ class Dates {
 	 * @return bool
 	 */
 	public static function is_timestamp( $timestamp ): bool {
-		if (
-			is_numeric( $timestamp )
-			&& (int) $timestamp == $timestamp
-			&& static::get( $timestamp )->format( 'U' ) == $timestamp
-		) {
-			return true;
+		$date = new \DateTimeImmutable();
+		if ( ! is_numeric( $timestamp ) ) {
+			return false;
 		}
 
-		return false;
+		// Purposefully using loose comparison here to match non-numeric strings.
+		if ( (int) $timestamp != $timestamp ) {
+			return false;
+		}
+
+		$timestamp = (int) $timestamp;
+
+		if ( $timestamp <= 0 ) {
+			return false;
+		}
+
+		// Convert to a date and back again to ensure that the timestamp remains the same.
+		$converted_timestamp = (int) strtotime( date( 'Y-m-d H:i:s', $timestamp ) );
+
+		if ( $converted_timestamp != $timestamp ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -936,7 +975,7 @@ class Dates {
 				return new Date_I18n( '@' . $datetime, $timestamp_timezone );
 			}
 
-			set_error_handler( 'stellarwp_dates_catch_and_throw' );
+			set_error_handler( [ __CLASS__, 'catch_and_throw' ] );
 			$date = new Date_I18n( $datetime, $timezone_object );
 			restore_error_handler();
 		} catch ( Exception $e ) {
@@ -1101,7 +1140,7 @@ class Dates {
 	 * @return int The number of seconds between the dates.
 	 */
 	public static function time_between( $date1, $date2 ): int {
-		return abs( static::get( $date1 )->format( 'U' ) - static::get( $date2 )->format( 'U' ) );
+		return abs( static::get( $date1 )->getTimestamp() - static::get( $date2 )->getTimestamp() );
 	}
 
 	/**
@@ -1192,7 +1231,7 @@ class Dates {
 				return strtotime( $string );
 			}
 			$date->setTimezone( new DateTimeZone( 'UTC' ) );
-			return (int) $date->format( 'U' );
+			return $date->getTimestamp();
 		} else {
 			$offset    = (float) static::get_cache( 'option_gmt_offset' );
 			$seconds   = intval( $offset * HOUR_IN_SECONDS );

@@ -110,7 +110,7 @@ class DateTest extends \Codeception\TestCase\WPTestCase {
 	public function test_date_sort_with_mixed_array() {
 		$now          = '47448000';
 		$start_date   = 47448001;
-		$end_date     = Dates::build_date_object( '47448002' );
+		$end_date     = Dates::mutable( '47448002' );
 		$sorted_array = [ '47448000', '47448001', '47448002' ];
 		$test_array   = [ $end_date, $now, $start_date ];
 

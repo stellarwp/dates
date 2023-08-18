@@ -217,7 +217,7 @@ class Timezones {
 
 		$offset = str_replace( 'UTC', '', $offset );
 
-		list( $hours, $minutes ) = explode( ':', $offset );
+		[ $hours, $minutes ] = explode( ':', $offset );
 		$seconds = (int) $hours * 60 * 60 + (int) $minutes * 60;
 
 		// attempt to guess the timezone string from the UTC offset
@@ -243,6 +243,17 @@ class Timezones {
 		}
 
 		return $timezone;
+	}
+
+	/**
+	 * Gets the system timezone.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return DateTimeZone
+	 */
+	public static function get_system_timezone() {
+		return static::build_timezone_object( date_default_timezone_get() );
 	}
 
 	/**
