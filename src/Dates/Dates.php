@@ -1,4 +1,5 @@
 <?php
+
 namespace StellarWP\Dates;
 
 use DateInterval;
@@ -7,8 +8,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
-use StellarWP\Dates\Date_I18n;
-use StellarWP\Dates\Date_I18n_Immutable;
 
 class Dates {
 	// Default formats, they are overridden by WP options or by arguments to date methods
@@ -33,60 +32,47 @@ class Dates {
 	/**
 	 * Builds a date object from a given datetime and timezone.
 	 *
+	 * Defaults to immutable, but can be set to return a mutable DateTime object.
+	 *
+	 * @since 1.0.5
+	 *
+	 * @param string|DateTimeInterface|int $datetime      A `strtotime` parsable string, a DateTime object or
+	 *                                                    a timestamp; defaults to `now`.
+	 * @param string|DateTimeZone|null     $timezone      A timezone string, UTC offset or DateTimeZone object;
+	 *                                                    defaults to the site timezone; this parameter is ignored
+	 *                                                    if the `$datetime` parameter is a DatTime object.
+	 * @param bool                         $with_fallback Whether to return a DateTime object even when the date data is
+	 *                                                    invalid or not; defaults to `true`.
+	 * @param bool                         $immutable     Whether to return a DateTimeImmutable object or a DateTime object;
+	 *
+	 * @return DateTime|DateTimeImmutable|false A DateTime object built using the specified date, time and timezone; if `$with_fallback`
+	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
+	 */
+	public static function build( $datetime = 'now', $timezone = null, bool $with_fallback = true, bool $immutable = true ) {
+		if ( $immutable ) {
+			return static::immutable( $datetime, $timezone, $with_fallback );
+		}
+		return self::mutable( $datetime, $timezone, $with_fallback );
+	}
+
+	/**
+	 * Alias of the mutable() method. Builds a date object from a given datetime and timezone.
+	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|DateTime|int      $datetime      A `strtotime` parsable string, a DateTime object or
-	 *                                                a timestamp; defaults to `now`.
-	 * @param string|DateTimeZone|null $timezone      A timezone string, UTC offset or DateTimeZone object;
-	 *                                                defaults to the site timezone; this parameter is ignored
-	 *                                                if the `$datetime` parameter is a DatTime object.
-	 * @param bool                     $with_fallback Whether to return a DateTime object even when the date data is
-	 *                                                invalid or not; defaults to `true`.
+	 * @param string|DateTimeInterface|int $datetime      A `strtotime` parsable string, a DateTime object or
+	 *                                                    a timestamp; defaults to `now`.
+	 * @param string|DateTimeZone|null     $timezone      A timezone string, UTC offset or DateTimeZone object;
+	 *                                                    defaults to the site timezone; this parameter is ignored
+	 *                                                    if the `$datetime` parameter is a DatTime object.
+	 * @param bool                         $with_fallback Whether to return a DateTime object even when the date data is
+	 *                                                    invalid or not; defaults to `true`.
 	 *
 	 * @return DateTime|false A DateTime object built using the specified date, time and timezone; if `$with_fallback`
 	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
 	 */
-	public static function build_date_object( $datetime = 'now', $timezone = null, $with_fallback = true ) {
-		if ( $datetime instanceof DateTime ) {
-			return clone $datetime;
-		}
-
-		if ( class_exists( 'DateTimeImmutable' ) && $datetime instanceof DateTimeImmutable ) {
-			// Return the mutable version of the date.
-			return Date_I18n::createFromImmutable( $datetime );
-		}
-
-		$timezone_object = null;
-		$datetime = empty( $datetime ) ? 'now' : $datetime;
-
-		try {
-			// PHP 5.2 will not throw an exception but will generate an error.
-			$utc = new DateTimeZone( 'UTC' );
-			$timezone_object = Timezones::build_timezone_object( $timezone );
-
-			if ( self::is_timestamp( $datetime ) ) {
-				$timestamp_timezone = $timezone ? $timezone_object : $utc;
-
-				return new Date_I18n( '@' . $datetime, $timestamp_timezone );
-			}
-
-			set_error_handler( 'stellarwp_dates_catch_and_throw' );
-			$date = new Date_I18n( $datetime, $timezone_object );
-			restore_error_handler();
-		} catch ( Exception $e ) {
-			// If we encounter an error, we need to restore after catching.
-			restore_error_handler();
-
-			if ( $timezone_object === null ) {
-				$timezone_object = Timezones::build_timezone_object( $timezone );
-			}
-
-			return $with_fallback
-				? new Date_I18n( 'now', $timezone_object )
-				: false;
-		}
-
-		return $date;
+	public static function build_date_object( $datetime = 'now', $timezone = null, bool $with_fallback = true ) {
+		return self::mutable( $datetime, $timezone, $with_fallback );
 	}
 
 	/**
@@ -98,8 +84,8 @@ class Dates {
 		global $wp_locale;
 
 		for ( $i = 1; $i <= 12; $i++ ) {
-			$month_number = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
-			$month        = $wp_locale->get_month( $month_number );
+			$month_number                                     = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
+			$month                                            = $wp_locale->get_month( $month_number );
 			self::$localized_months['full'][ $month_number ]  = $month;
 			self::$localized_months['short'][ $month_number ] = $wp_locale->get_month_abbrev( $month );
 		}
@@ -112,7 +98,7 @@ class Dates {
 		global $wp_locale;
 
 		for ( $i = 0; $i <= 6; $i++ ) {
-			$day = $wp_locale->get_weekday( $i );
+			$day                                       = $wp_locale->get_weekday( $i );
 			self::$localized_weekdays['full'][ $i ]    = $day;
 			self::$localized_weekdays['short'][ $i ]   = $wp_locale->get_weekday_abbrev( $day );
 			self::$localized_weekdays['initial'][ $i ] = $wp_locale->get_weekday_initial( $day );
@@ -129,8 +115,8 @@ class Dates {
 	/**
 	 * The number of days between two arbitrary dates.
 	 *
-	 * @param string $date1 The first date.
-	 * @param string $date2 The second date.
+	 * @param string|int|DateTime|DateTimeImmutable $date1 The first date.
+	 * @param string|int|DateTime|DateTimeImmutable $date2 The second date.
 	 *
 	 * @return int The number of days between two dates.
 	 */
@@ -146,28 +132,28 @@ class Dates {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int|string $date        The date (timestamp or string).
-	 * @param bool       $isTimestamp Is $date in timestamp format?
-	 * @param string|null $format The format used
+	 * @param string|int|DateTime|DateTimeImmutable $date        The date (timestamp or string).
+	 * @param bool                                  $isTimestamp Is $date in timestamp format?
+	 * @param string|null                           $format      The format used
 	 *
 	 * @return string The date only in DB format.
 	 */
 	public static function date_only( $date, $isTimestamp = false, $format = null ) {
-		$date = $isTimestamp ? $date : strtotime( $date );
+		$date = static::get( $date );
 
 		if ( is_null( $format ) ) {
 			$format = self::DBDATEFORMAT;
 		}
 
-		return date( $format, $date );
+		return $date->format( $format );
 	}
 
 	/**
 	 * As PHP 5.2 doesn't have a good version of `date_parse_from_format`, this is how we deal with
 	 * possible weird datepicker formats not working
 	 *
-	 * @param  string $format The weird format you are using
-	 * @param  string $date   The date string to parse
+	 * @param string $format The weird format you are using
+	 * @param string $date   The date string to parse
 	 *
 	 * @return string|bool         A DB formated Date, includes time if possible
 	 */
@@ -234,7 +220,7 @@ class Dates {
 		$regex = '';
 		$chars = str_split( $format );
 		foreach ( $chars as $n => $char ) {
-			$last_char = isset( $chars[ $n - 1 ] ) ? $chars[ $n - 1 ] : '';
+			$last_char    = isset( $chars[ $n - 1 ] ) ? $chars[ $n - 1 ] : '';
 			$skip_current = '\\' == $last_char;
 			if ( ! $skip_current && isset( $keys[ $char ] ) ) {
 				$regex .= '(?P<' . $keys[ $char ][0] . '>' . $keys[ $char ][1] . ')';
@@ -265,7 +251,7 @@ class Dates {
 		}
 
 		$dt['month'] = str_pad( $dt['month'], 2, '0', STR_PAD_LEFT );
-		$dt['day'] = str_pad( $dt['day'], 2, '0', STR_PAD_LEFT );
+		$dt['day']   = str_pad( $dt['day'], 2, '0', STR_PAD_LEFT );
 
 		$formatted = '{year}-{month}-{day}' . ( isset( $dt['hour'], $dt['minute'], $dt['second'] ) ? ' {hour}:{minute}:{second}' : '' );
 		foreach ( $dt as $key => $value ) {
@@ -280,25 +266,48 @@ class Dates {
 	 * "w" format (ie, Sunday is 0 and Saturday is 6) or
 	 * false if this cannot be established.
 	 *
-	 * @param  mixed $month
+	 * @param string|int|DateTime|DateTimeImmutable $month
+	 *
 	 * @return int|bool
 	 */
 	public static function first_day_in_month( $month ) {
 		try {
-			$date  = new DateTime( $month );
-			$day_1 = new DateTime( $date->format( 'Y-m-01 ' ) );
+			$date  = static::get( $month );
+			$day_1 = static::get( $date->format( 'Y-m-01 ' ) );
 			return (int) $day_1->format( 'w' );
-		}
-		catch ( Exception $e ) {
+		} catch ( Exception $e ) {
 			return false;
 		}
+	}
+
+	/**
+	 * Builds a date object from a given datetime and timezone.
+	 *
+	 * Defaults to immutable, but can be set to return a mutable DateTime object.
+	 *
+	 * @since 1.0.5
+	 *
+	 * @param string|DateTimeInterface|int $datetime      A `strtotime` parsable string, a DateTime object or
+	 *                                                    a timestamp; defaults to `now`.
+	 * @param string|DateTimeZone|null     $timezone      A timezone string, UTC offset or DateTimeZone object;
+	 *                                                    defaults to the site timezone; this parameter is ignored
+	 *                                                    if the `$datetime` parameter is a DatTime object.
+	 * @param bool                         $with_fallback Whether to return a DateTime object even when the date data is
+	 *                                                    invalid or not; defaults to `true`.
+	 * @param bool                         $immutable     Whether to return a DateTimeImmutable object or a DateTime object;
+	 *
+	 * @return DateTime|DateTimeImmutable|false A DateTime object built using the specified date, time and timezone; if `$with_fallback`
+	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
+	 */
+	public static function get( $datetime = 'now', $timezone = null, bool $with_fallback = true, bool $immutable = true ) {
+		return static::build( $datetime, $timezone, $with_fallback, $immutable );
 	}
 
 	/**
 	 * Gets a value from the cache.
 	 *
 	 * @param string $key
-	 * @param mixed $default
+	 * @param mixed  $default
 	 *
 	 * @return mixed
 	 */
@@ -309,55 +318,71 @@ class Dates {
 	/**
 	 * Gets the first day of the week in a month (ie the first Tuesday).
 	 *
-	 * @param int $curdate     A timestamp.
-	 * @param int $day_of_week The index of the day of the week.
+	 * @param string|int|DateTime|DateTimeImmutable $curdate     A timestamp.
+	 * @param int                                   $day_of_week The index of the day of the week.
 	 *
 	 * @return int The timestamp of the date that fits the qualifications.
 	 */
 	public static function get_first_day_of_week_in_month( $curdate, $day_of_week ) {
-		$nextdate = mktime( 0, 0, 0, (int) date( 'n', $curdate ), 1, (int) date( 'Y', $curdate ) );
+		$curdate_object = static::get( $curdate );
+		$nextdate       = static::get( $curdate_object->format( 'Y-m-01' ) );
 
-		while ( ! ( $day_of_week > 0 && date( 'N', $nextdate ) == $day_of_week ) &&
-			! ( $day_of_week == - 1 && self::is_weekday( $nextdate ) ) &&
-			! ( $day_of_week == - 2 && self::is_weekend( $nextdate ) ) ) {
-			$nextdate = strtotime( date( self::DBDATETIMEFORMAT, $nextdate ) . ' + 1 day' );
+		while (
+			! (
+				$day_of_week > 0
+				&& $nextdate->format( 'N' ) == $day_of_week
+			)
+			&& ! (
+				$day_of_week == -1
+				&& self::is_weekday( $nextdate->format( 'U' ) )
+			)
+			&& ! (
+				$day_of_week == -2
+				&& self::is_weekend( $nextdate->format( 'U' ) )
+			)
+		) {
+			$nextdate = static::get( $nextdate->format( static::DBDATETIMEFORMAT ) . ' + 1 day' );
 		}
 
-		return $nextdate;
+		return (int) $nextdate->format( 'U' );
 	}
 
 	/**
 	 * Returns the last day of the month given a php date.
 	 *
-	 * @param int $timestamp THe timestamp.
+	 * @param string|int|DateTime|DateTimeImmutable $timestamp THe timestamp.
 	 *
 	 * @return string The last day of the month.
 	 */
-	public static function get_last_day_of_month( $timestamp ) {
-		$curmonth  = date( 'n', $timestamp );
-		$curYear   = date( 'Y', $timestamp );
-		$nextmonth = mktime( 0, 0, 0, $curmonth + 1, 1, (int) $curYear );
-		$lastDay   = strtotime( date( self::DBDATETIMEFORMAT, $nextmonth ) . ' - 1 day' );
+	public static function get_last_day_of_month( $timestamp ): string {
+		$date_object = static::get( $timestamp );
+		$curmonth    = (int) $date_object->format( 'n' );
+		$curYear     = (int) $date_object->format( 'Y' );
+		$nextmonth   = static::get( "{$curYear}-{$curmonth}-01" );
+		$lastDay     = $nextmonth->modify( '-1 day' );
 
-		return date( 'j', $lastDay );
+		return $lastDay->format( 'j' );
 	}
 
 	/**
 	 * Gets the last day of the week in a month (ie the last Tuesday).  Passing in -1 gives you the last day in the month.
 	 *
-	 * @param int $curdate     A timestamp.
-	 * @param int $day_of_week The index of the day of the week.
+	 * @param string|int|DateTime|DateTimeImmutable $curdate     A timestamp.
+	 * @param int                                   $day_of_week The index of the day of the week.
 	 *
 	 * @return int The timestamp of the date that fits the qualifications.
 	 */
-	public static function get_last_day_of_week_in_month( $curdate, $day_of_week ) {
-		$nextdate = mktime( (int) date( 'H', $curdate ), (int) date( 'i', $curdate ), (int) date( 's', $curdate ), (int) date( 'n', $curdate ), (int) self::get_last_day_of_month( $curdate ), (int) date( 'Y', $curdate ) );;
+	public static function get_last_day_of_week_in_month( $curdate, int $day_of_week ): int {
+		$curdate           = static::get( $curdate );
+		$last_day_of_month = (int) static::get_last_day_of_month( $curdate->format( 'U' ) );
+		$curdate_string    = $curdate->format( "Y-m-{$last_day_of_month} H:i:s" );
+		$nextdate          = static::get( $curdate_string );
 
-		while ( date( 'N', $nextdate ) != $day_of_week && $day_of_week != - 1 ) {
-			$nextdate = strtotime( date( self::DBDATETIMEFORMAT, $nextdate ) . ' - 1 day' );
+		while ( $nextdate->format( 'N' ) != $day_of_week && $day_of_week != -1 ) {
+			$nextdate = $nextdate->modify( '-1 day' );
 		}
 
-		return $nextdate;
+		return (int) $nextdate->format( 'U' );
 	}
 
 	/**
@@ -365,9 +390,7 @@ class Dates {
 	 *
 	 * @return array
 	 */
-	public static function get_localized_months_full() {
-		global $wp_locale;
-
+	public static function get_localized_months_full(): array {
 		if ( empty( self::$localized_months ) ) {
 			self::build_localized_months();
 		}
@@ -397,9 +420,7 @@ class Dates {
 	 *
 	 * @return array
 	 */
-	public static function get_localized_months_short() {
-		global $wp_locale;
-
+	public static function get_localized_months_short(): array {
 		if ( empty( self::$localized_months ) ) {
 			self::build_localized_months();
 		}
@@ -429,7 +450,7 @@ class Dates {
 	 *
 	 * @return array
 	 */
-	public static function get_localized_weekdays_full() {
+	public static function get_localized_weekdays_full(): array {
 		if ( empty( self::$localized_weekdays ) ) {
 			self::build_localized_weekdays();
 		}
@@ -442,7 +463,7 @@ class Dates {
 	 *
 	 * @return array
 	 */
-	public static function get_localized_weekdays_initial() {
+	public static function get_localized_weekdays_initial(): array {
 		if ( empty( self::$localized_weekdays ) ) {
 			self::build_localized_weekdays();
 		}
@@ -455,7 +476,7 @@ class Dates {
 	 *
 	 * @return array
 	 */
-	public static function get_localized_weekdays_short() {
+	public static function get_localized_weekdays_short(): array {
 		if ( empty( self::$localized_weekdays ) ) {
 			self::build_localized_weekdays();
 		}
@@ -472,7 +493,7 @@ class Dates {
 	 *
 	 * @return string
 	 */
-	public static function get_modifier_from_offset( $offset ) {
+	public static function get_modifier_from_offset( $offset ): string {
 		$modifier = '';
 		$offset   = (float) $offset;
 
@@ -482,12 +503,18 @@ class Dates {
 		$polarity = ( $offset >= 0 ) ? '+' : '-';
 
 		// Correct hours and minutes to positive values
-		if ( $hours < 0 )   $hours *= -1;
-		if ( $minutes < 0 ) $minutes *= -1;
+		if ( $hours < 0 ) {
+			$hours *= -1;
+		}
+		if ( $minutes < 0 ) {
+			$minutes *= -1;
+		}
 
 		// Form the modifier string
-		$modifier  = "$polarity $hours hours ";
-		if ( $minutes > 0 ) $modifier .= "$minutes minutes";
+		$modifier = "$polarity $hours hours ";
+		if ( $minutes > 0 ) {
+			$modifier .= "$minutes minutes";
+		}
 
 		return $modifier;
 	}
@@ -497,8 +524,6 @@ class Dates {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws Exception
-	 *
 	 * @param string|int|\DateTime $date          The date string, timestamp or object.
 	 * @param int|null             $start_of_week The number representing the start of week day as handled by
 	 *                                            WordPress: `0` (for Sunday) through `6` (for Saturday).
@@ -507,13 +532,15 @@ class Dates {
 	 *                        supplied date is invalid. The timezone of the returned object is set to the site one.
 	 *                        The week start has its time set to `00:00:00`, the week end will have its time set
 	 *                        `23:59:59`.
+	 * @throws Exception
+	 *
 	 */
-	public static function get_week_start_end( $date, $start_of_week = null ) {
+	public static function get_week_start_end( $date, $start_of_week = null ): array {
 		static $cache_var_name = __FUNCTION__;
 
 		$cache_week_start_end = static::get_cache( $cache_var_name, [] );
 
-		$date_obj = static::build_date_object( $date );
+		$date_obj = static::mutable( $date );
 		$date_obj->setTime( 0, 0, 0 );
 
 		$date_string = $date_obj->format( static::DBDATEFORMAT );
@@ -595,50 +622,42 @@ class Dates {
 	 *
 	 * @param int $day_of_week    The day representing the number in the week, Monday is `1`, Tuesday is `2`, Sunday is `7`
 	 * @param int $week_in_month  The week number in the month; first week is `1`, second week is `2`; when direction is reverse
-	 *                  then `1` is last week of the month, `2` is penultimate week of the month and so on.
+	 *                            then `1` is last week of the month, `2` is penultimate week of the month and so on.
 	 * @param int $month          The month number in the year, January is `1`
 	 * @param int $year           The year number, e.g. "2015"
 	 * @param int $week_direction Either `1` or `-1`; the direction for the search referring to the week, defaults to `1`
-	 *                       to specify weeks in natural order so:
-	 *                       $week_direction `1` and $week_in_month `1` means "first week of the month"
-	 *                       $week_direction `1` and $week_in_month `3` means "third week of the month"
-	 *                       $week_direction `-1` and $week_in_month `1` means "last week of the month"
-	 *                       $week_direction `-1` and $week_in_month `2` means "penultimmate week of the month"
+	 *                            to specify weeks in natural order so:
+	 *                            $week_direction `1` and $week_in_month `1` means "first week of the month"
+	 *                            $week_direction `1` and $week_in_month `3` means "third week of the month"
+	 *                            $week_direction `-1` and $week_in_month `1` means "last week of the month"
+	 *                            $week_direction `-1` and $week_in_month `2` means "penultimmate week of the month"
 	 *
 	 * @return int|bool The day timestamp
 	 */
-	public static function get_weekday_timestamp( $day_of_week, $week_in_month, $month, $year, $week_direction = 1 ) {
-		if (
-			! (
-				is_numeric( $day_of_week )
-				&& is_numeric( $week_in_month )
-				&& is_numeric( $month )
-				&& is_numeric( $year )
-				&& is_numeric( $week_direction )
-				&& in_array( $week_direction, [ -1, 1 ] )
-			)
-		) {
+	public static function get_weekday_timestamp( int $day_of_week, int $week_in_month, int $month, int $year, int $week_direction = 1 ) {
+		if ( ! in_array( $week_direction, [ -1, 1 ] ) ) {
 			return false;
 		}
 
 		if ( $week_direction > 0 ) {
 			$startday = 1;
 		} else {
-			$startday = date( 't', mktime( 0, 0, 0, $month, 1, $year ) );
+			$startday = static::get( "{$year}-{$month}-01" )->format( 't' );
 		}
 
-		$start   = mktime( 0, 0, 0, $month, $startday, $year );
-		$weekday = date( 'N', $start );
+		$start   = static::get( "{$year}-{$month}-{$startday}" );
+		$weekday = $start->format( 'N' );
 
 		if ( $week_direction * $day_of_week >= $week_direction * $weekday ) {
-			$offset = - $week_direction * 7;
+			$offset = -$week_direction * 7;
 		} else {
 			$offset = 0;
 		}
 
-		$offset += $week_direction * ( $week_in_month * 7 ) + ( $day_of_week - $weekday );
+		$offset       += $week_direction * ( $week_in_month * 7 ) + ( $day_of_week - $weekday );
+		$offset_start = $startday + $offset;
 
-		return mktime( 0, 0, 0, $month, $startday + $offset, $year );
+		return (int) static::get( "{$year}-{$month}-{$offset_start}" )->format( 'U' );
 	}
 
 	/**
@@ -655,35 +674,34 @@ class Dates {
 	/**
 	 * Returns the hour only.
 	 *
-	 * @param string $date The date.
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
 	 *
 	 * @return string The hour only.
 	 */
-	public static function hour_only( $date ) {
-		$date = is_numeric( $date ) ? $date : strtotime( $date );
-		return date( self::HOURFORMAT, $date );
+	public static function hour_only( $date ): string {
+		return static::get( $date )->format( self::HOURFORMAT );
 	}
 
 	/**
 	 * Builds the immutable version of a date from a string, integer (timestamp) or \DateTime object.
 	 *
-	 * It's the immutable version of the `Dates::build_date_object` method.
+	 * It's the immutable version of the `Dates::mutable` method.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|DateTime|int      $datetime      A `strtotime` parsable string, a DateTime object or
-	 *                                                a timestamp; defaults to `now`.
-	 * @param string|DateTimeZone|null $timezone      A timezone string, UTC offset or DateTimeZone object;
-	 *                                                defaults to the site timezone; this parameter is ignored
-	 *                                                if the `$datetime` parameter is a DatTime object.
-	 * @param bool                     $with_fallback Whether to return a DateTime object even when the date data is
-	 *                                                invalid or not; defaults to `true`.
+	 * @param string|DateTimeInterface|int $datetime      A `strtotime` parsable string, a DateTime object or
+	 *                                                    a timestamp; defaults to `now`.
+	 * @param string|DateTimeZone|null     $timezone      A timezone string, UTC offset or DateTimeZone object;
+	 *                                                    defaults to the site timezone; this parameter is ignored
+	 *                                                    if the `$datetime` parameter is a DatTime object.
+	 * @param bool                         $with_fallback Whether to return a DateTime object even when the date data is
+	 *                                                    invalid or not; defaults to `true`.
 	 *
 	 * @return DateTimeImmutable|false A DateTime object built using the specified date, time and timezone; if
 	 *                                 `$with_fallback` is set to `false` then `false` will be returned if a
 	 *                                 DateTime object could not be built.
 	 */
-	static function immutable( $datetime = 'now', $timezone = null, $with_fallback = true ) {
+	static function immutable( $datetime = 'now', $timezone = null, bool $with_fallback = true ) {
 		if ( $datetime instanceof DateTimeImmutable ) {
 			return $datetime;
 		}
@@ -692,7 +710,7 @@ class Dates {
 			return Date_I18n_Immutable::createFromMutable( $datetime );
 		}
 
-		$mutable = static::build_date_object( $datetime, $timezone, $with_fallback );
+		$mutable = static::mutable( $datetime, $timezone, $with_fallback );
 
 		if ( false === $mutable ) {
 			return false;
@@ -723,7 +741,7 @@ class Dates {
 	 *
 	 * @return DateInterval The built date interval object.
 	 */
-	public static function interval( $interval_spec ) {
+	public static function interval( $interval_spec ): DateInterval {
 		try {
 			$interval = new \DateInterval( $interval_spec );
 		} catch ( \Exception $e ) {
@@ -738,16 +756,16 @@ class Dates {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|DateTime|int $start_date A `strtotime` parsable string, a DateTime object or a timestamp.
-	 * @param string|DateTime|int $end_date   A `strtotime` parsable string, a DateTime object or a timestamp.
-	 * @param string|DateTime|int $now        A `strtotime` parsable string, a DateTime object or a timestamp. Defaults to 'now'.
+	 * @param string|DateTimeInterface|int $start_date A `strtotime` parsable string, a DateTime object or a timestamp.
+	 * @param string|DateTimeInterface|int $end_date   A `strtotime` parsable string, a DateTime object or a timestamp.
+	 * @param string|DateTimeInterface|int $now        A `strtotime` parsable string, a DateTime object or a timestamp. Defaults to 'now'.
 	 *
 	 * @return boolean Whether the current datetime (or passed "now") is between the passed start and end dates.
 	 */
-	public static function is_now( $start_date, $end_date, $now = 'now' ) : bool {
-		$now        = self::build_date_object( $now );
-		$start_date = self::build_date_object( $start_date );
-		$end_date   = self::build_date_object( $end_date );
+	public static function is_now( $start_date, $end_date, $now = 'now' ): bool {
+		$now        = self::mutable( $now );
+		$start_date = self::mutable( $start_date );
+		$end_date   = self::mutable( $end_date );
 
 		// If the dates are identical, bail early.
 		if ( $start_date === $end_date ) {
@@ -777,8 +795,12 @@ class Dates {
 	 *
 	 * @return bool
 	 */
-	public static function is_timestamp( $timestamp ) {
-		if ( is_numeric( $timestamp ) && (int) $timestamp == $timestamp && date( 'U', $timestamp ) == $timestamp ) {
+	public static function is_timestamp( $timestamp ): bool {
+		if (
+			is_numeric( $timestamp )
+			&& (int) $timestamp == $timestamp
+			&& static::get( $timestamp )->format( 'U' ) == $timestamp
+		) {
 			return true;
 		}
 
@@ -795,7 +817,7 @@ class Dates {
 	 * @return bool Whether the date string can be used to build DateTime objects, and is thus parsable by functions
 	 *              like `strtotime`, or not.
 	 */
-	public static function is_valid_date( $date ) {
+	public static function is_valid_date( string $date ): bool {
 		static $cache_var_name = __FUNCTION__;
 
 		$cache_date_check = static::get_cache( $cache_var_name, [] );
@@ -804,7 +826,7 @@ class Dates {
 			return $cache_date_check[ $date ];
 		}
 
-		$cache_date_check[ $date ] = self::build_date_object( $date, null, false ) instanceof DateTimeInterface;
+		$cache_date_check[ $date ] = self::mutable( $date, null, false ) instanceof DateTimeInterface;
 
 		static::set_cache( $cache_var_name, $cache_date_check );
 
@@ -814,23 +836,23 @@ class Dates {
 	/**
 	 * Returns true if the timestamp is a weekday.
 	 *
-	 * @param int $curdate A timestamp.
+	 * @param string|int|DateTime|DateTimeImmutable $curdate A timestamp or date.
 	 *
 	 * @return bool If the timestamp is a weekday.
 	 */
-	public static function is_weekday( $curdate ) {
-		return in_array( date( 'N', $curdate ), [ 1, 2, 3, 4, 5 ] );
+	public static function is_weekday( $curdate ): bool {
+		return in_array( static::get( $curdate )->format( 'N' ), [ 1, 2, 3, 4, 5 ] );
 	}
 
 	/**
 	 * Returns true if the timestamp is a weekend.
 	 *
-	 * @param int $curdate A timestamp.
+	 * @param string|int|DateTime|DateTimeImmutable $curdate A timestamp or date.
 	 *
 	 * @return bool If the timestamp is a weekend.
 	 */
 	public static function is_weekend( $curdate ) {
-		return in_array( date( 'N', $curdate ), [ 6, 7 ] );
+		return in_array( static::get( $curdate )->format( 'N' ), [ 6, 7 ] );
 	}
 
 	/**
@@ -838,16 +860,16 @@ class Dates {
 	 * "w" format (ie, Sunday is 0 and Saturday is 6) or
 	 * false if this cannot be established.
 	 *
-	 * @param  mixed $month
+	 * @param mixed $month
+	 *
 	 * @return int|bool
 	 */
 	public static function last_day_in_month( $month ) {
 		try {
-			$date  = new DateTime( $month );
-			$day_1 = new DateTime( $date->format( 'Y-m-t' ) );
+			$date  = static::get( $month );
+			$day_1 = static::get( $date->format( 'Y-m-t' ) );
 			return (int) $day_1->format( 'w' );
-		}
-		catch ( Exception $e ) {
+		} catch ( Exception $e ) {
 			return false;
 		}
 	}
@@ -855,47 +877,82 @@ class Dates {
 	/**
 	 * Returns the meridian (am or pm) only.
 	 *
-	 * @param string $date The date.
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
 	 *
 	 * @return string The meridian only in DB format.
 	 */
-	public static function meridian_only( $date ) {
-		$date = is_numeric( $date ) ? $date : strtotime( $date );
-		return date( self::MERIDIANFORMAT, $date );
+	public static function meridian_only( $date ): string {
+		return static::get( $date )->format( self::MERIDIANFORMAT );
 	}
 
 	/**
 	 * Returns the minute only.
 	 *
-	 * @param string $date The date.
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
 	 *
 	 * @return string The minute only.
 	 */
 	public static function minutes_only( $date ) {
-		$date = is_numeric( $date ) ? $date : strtotime( $date );
-		return date( self::MINUTEFORMAT, $date );
+		return static::get( $date )->format( self::MINUTEFORMAT );
 	}
 
 	/**
 	 * Builds a date object from a given datetime and timezone.
 	 *
-	 * An alias of the `Dates::build_date_object` function.
-	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|DateTime|int      $datetime      A `strtotime` parsable string, a DateTime object or
-	 *                                                a timestamp; defaults to `now`.
-	 * @param string|DateTimeZone|null $timezone      A timezone string, UTC offset or DateTimeZone object;
-	 *                                                defaults to the site timezone; this parameter is ignored
-	 *                                                if the `$datetime` parameter is a DatTime object.
-	 * @param bool                     $with_fallback Whether to return a DateTime object even when the date data is
-	 *                                                invalid or not; defaults to `true`.
+	 * @param string|DateTimeInterface|int $datetime      A `strtotime` parsable string, a DateTime object or
+	 *                                                    a timestamp; defaults to `now`.
+	 * @param string|DateTimeZone|null     $timezone      A timezone string, UTC offset or DateTimeZone object;
+	 *                                                    defaults to the site timezone; this parameter is ignored
+	 *                                                    if the `$datetime` parameter is a DatTime object.
+	 * @param bool                         $with_fallback Whether to return a DateTime object even when the date data is
+	 *                                                    invalid or not; defaults to `true`.
 	 *
 	 * @return DateTime|false A DateTime object built using the specified date, time and timezone; if `$with_fallback`
 	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
 	 */
-	public static function mutable( $datetime = 'now', $timezone = null, $with_fallback = true ) {
-		return static::build_date_object( $datetime, $timezone, $with_fallback );
+	public static function mutable( $datetime = 'now', $timezone = null, bool $with_fallback = true ) {
+		if ( $datetime instanceof DateTime ) {
+			return clone $datetime;
+		}
+
+		if ( $datetime instanceof DateTimeImmutable ) {
+			// Return the mutable version of the date.
+			return Date_I18n::createFromImmutable( $datetime );
+		}
+
+		$timezone_object = null;
+		$datetime        = empty( $datetime ) ? 'now' : $datetime;
+
+		try {
+			// PHP 5.2 will not throw an exception but will generate an error.
+			$utc             = new DateTimeZone( 'UTC' );
+			$timezone_object = Timezones::build_timezone_object( $timezone );
+
+			if ( self::is_timestamp( $datetime ) ) {
+				$timestamp_timezone = $timezone ? $timezone_object : $utc;
+
+				return new Date_I18n( '@' . $datetime, $timestamp_timezone );
+			}
+
+			set_error_handler( 'stellarwp_dates_catch_and_throw' );
+			$date = new Date_I18n( $datetime, $timezone_object );
+			restore_error_handler();
+		} catch ( Exception $e ) {
+			// If we encounter an error, we need to restore after catching.
+			restore_error_handler();
+
+			if ( $timezone_object === null ) {
+				$timezone_object = Timezones::build_timezone_object( $timezone );
+			}
+
+			return $with_fallback
+				? new Date_I18n( 'now', $timezone_object )
+				: false;
+		}
+
+		return $date;
 	}
 
 	/**
@@ -906,8 +963,17 @@ class Dates {
 	 * @return string The ordinal for that number.
 	 */
 	public static function number_to_ordinal( $number ) {
-		$output = $number . ( ( ( strlen( $number ) > 1 ) && ( substr( $number, - 2, 1 ) == '1' ) ) ?
-				'th' : date( 'S', mktime( 0, 0, 0, 0, (int) substr( $number, - 1 ), 0 ) ) );
+		if (
+			strlen( $number ) > 1
+			&& substr( $number, -2, 1 ) == '1'
+		) {
+			$output = "{$number}th";
+		} else {
+			$last_number = (int) substr( $number, -1, 1 );
+			$date        = static::get( "Y-01-{$last_number}" );
+			$output      = $number . $date->format( 'S' );
+		}
+
 
 		return apply_filters( 'stellarwp/dates/number_to_ordinal', $output, $number );
 	}
@@ -917,13 +983,13 @@ class Dates {
 	 * Note: all params should be unix timestamps
 	 *
 	 * @param integer $range_1_start timestamp for start of the first range
-	 * @param integer $range_1_end timestamp for end of the first range
+	 * @param integer $range_1_end   timestamp for end of the first range
 	 * @param integer $range_2_start timestamp for start of the second range
-	 * @param integer $range_2_end timestamp for end of the second range
+	 * @param integer $range_2_end   timestamp for end of the second range
 	 *
 	 * @return bool
 	 */
-	public static function range_coincides( $range_1_start, $range_1_end, $range_2_start, $range_2_end ) {
+	public static function range_coincides( int $range_1_start, int $range_1_end, int $range_2_start, int $range_2_end ): bool {
 
 		// Initialize the return value
 		$range_coincides = false;
@@ -951,16 +1017,16 @@ class Dates {
 	 * Accepts a string representing a date/time and attempts to convert it to
 	 * the specified format, returning an empty string if this is not possible.
 	 *
-	 * @param $dt_string
-	 * @param $new_format
+	 * @param string|int|DateTime|DateTimeImmutable $dt_string
+	 * @param string                                $new_format
 	 *
 	 * @return string
 	 */
-	public static function reformat( $dt_string, $new_format ) {
-		$timestamp = self::is_timestamp( $dt_string ) ? $dt_string : strtotime( $dt_string );
-		$revised   = date( $new_format, $timestamp );
+	public static function reformat( $dt_string, $new_format ): string {
+		$date    = static::get( $dt_string );
+		$revised = $date->format( $new_format );
 
-		return $revised ? $revised : '';
+		return $revised ?: '';
 	}
 
 	/**
@@ -973,7 +1039,7 @@ class Dates {
 	 * @return string Rounded datetime string
 	 */
 	public static function round_nearest_half_hour( $date ) {
-		$date_object = static::build_date_object( $date );
+		$date_object     = static::mutable( $date );
 		$rounded_minutes = floor( $date_object->format( 'i' ) / 30 ) * 30;
 
 		return $date_object->format( 'Y-m-d H:' ) . $rounded_minutes . ':00';
@@ -983,7 +1049,7 @@ class Dates {
 	 * Sets a value in the cache.
 	 *
 	 * @param string $key
-	 * @param mixed $value
+	 * @param mixed  $value
 	 *
 	 * @return mixed
 	 */
@@ -1002,7 +1068,7 @@ class Dates {
 	 *
 	 * @return array<DateTime> A sorted array of DateTime objects.
 	 */
-	public static function sort( array $dates, string $direction = 'ASC' ) :array {
+	public static function sort( array $dates, string $direction = 'ASC' ): array {
 		// If we get passed a single array, break it out of the containing array.
 		if ( is_array( $dates[0] ) ) {
 			$dates = $dates[0];
@@ -1011,7 +1077,7 @@ class Dates {
 		// Ensure we're always dealing with date objects here.
 		$dates = array_map(
 			function( $date ) {
-				return self::build_date_object( $date );
+				return self::mutable( $date );
 			},
 			$dates
 		);
@@ -1029,25 +1095,25 @@ class Dates {
 	/**
 	 * Returns the number of seconds (absolute value) between two dates/times.
 	 *
-	 * @param string $date1 The first date.
-	 * @param string $date2 The second date.
+	 * @param string|int|DateTime|DateTimeImmutable $date1 The first date.
+	 * @param string|int|DateTime|DateTimeImmutable $date2 The second date.
 	 *
 	 * @return int The number of seconds between the dates.
 	 */
-	public static function time_between( $date1, $date2 ) {
-		return abs( strtotime( $date1 ) - strtotime( $date2 ) );
+	public static function time_between( $date1, $date2 ): int {
+		return abs( static::get( $date1 )->format( 'U' ) - static::get( $date2 )->format( 'U' ) );
 	}
 
 	/**
 	 * Returns the time only.
 	 *
-	 * @param string $date The date.
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
 	 *
 	 * @return string The time only in DB format.
 	 */
-	public static function time_only( $date ) {
-		$date = is_numeric( $date ) ? $date : strtotime( $date );
-		return date( self::DBTIMEFORMAT, $date );
+	public static function time_only( $date ): string {
+		$date = static::get( $date );
+		return $date->format( self::DBTIMEFORMAT );
 	}
 
 	/**
@@ -1072,12 +1138,14 @@ class Dates {
 	 * Returns the day of the week the week ends on, expressed as a "w" value
 	 * (ie, Sunday is 0 and Saturday is 6).
 	 *
-	 * @param  int $week_starts_on
+	 * @param int $week_starts_on
 	 *
 	 * @return int
 	 */
-	public static function week_ends_on( $week_starts_on ) {
-		if ( --$week_starts_on < 0 ) $week_starts_on = 6;
+	public static function week_ends_on( $week_starts_on ): int {
+		if ( --$week_starts_on < 0 ) {
+			$week_starts_on = 6;
+		}
 		return $week_starts_on;
 	}
 
@@ -1092,11 +1160,12 @@ class Dates {
 	 * option.
 	 *
 	 * @see  strtotime()
-	 * @uses get_option() to retrieve the value of 'gmt_offset'
 	 *
 	 * @param string $string A date/time string. See `strtotime` for valid formats
 	 *
 	 * @return int UNIX timestamp.
+	 * @uses get_option() to retrieve the value of 'gmt_offset'
+	 *
 	 */
 	public static function wp_strtotime( $string ) {
 		// If there's a timezone specified, we shouldn't convert it
@@ -1125,8 +1194,8 @@ class Dates {
 			$date->setTimezone( new DateTimeZone( 'UTC' ) );
 			return (int) $date->format( 'U' );
 		} else {
-			$offset = (float) static::get_cache( 'option_gmt_offset' );
-			$seconds = intval( $offset * HOUR_IN_SECONDS );
+			$offset    = (float) static::get_cache( 'option_gmt_offset' );
+			$seconds   = intval( $offset * HOUR_IN_SECONDS );
 			$timestamp = strtotime( $string ) - $seconds;
 			return $timestamp;
 		}
@@ -1137,8 +1206,8 @@ class Dates {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param int|string $month Month of year
-	 * @param string $format Month format: full, month, abbreviation, abbrev, abbr, short
+	 * @param int|string $month  Month of year
+	 * @param string     $format Month format: full, month, abbreviation, abbrev, abbr, short
 	 *
 	 * @return string
 	 */
@@ -1213,7 +1282,7 @@ class Dates {
 	 * @since 1.0.0
 	 *
 	 * @param int|string $weekday Day of week
-	 * @param string $format Weekday format: full, weekday, initial, abbreviation, abbrev, abbr, short
+	 * @param string     $format  Weekday format: full, weekday, initial, abbreviation, abbrev, abbr, short
 	 *
 	 * @return string
 	 */
