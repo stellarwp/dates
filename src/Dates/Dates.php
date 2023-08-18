@@ -137,7 +137,7 @@ class Dates {
 	}
 
 	/**
-	 * The number of days between two arbitrary dates.
+	 * Alias for diff(). The number of days between two arbitrary dates.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $date1 The first date.
 	 * @param string|int|DateTime|DateTimeImmutable $date2 The second date.
@@ -145,10 +145,7 @@ class Dates {
 	 * @return int The number of days between two dates.
 	 */
 	public static function date_diff( $date1, $date2 ) {
-		// Get number of days between by finding seconds between and dividing by # of seconds in a day
-		$days = self::time_between( $date1, $date2 ) / ( 60 * 60 * 24 );
-
-		return $days;
+		return static::diff( $date1, $date2 );
 	}
 
 	/**
@@ -286,19 +283,33 @@ class Dates {
 	}
 
 	/**
+	 * The number of days between two arbitrary dates.
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date1 The first date.
+	 * @param string|int|DateTime|DateTimeImmutable $date2 The second date.
+	 *
+	 * @return int The number of days between two dates.
+	 */
+	public static function diff( $date1, $date2 ) {
+		// Get number of days between by finding seconds between and dividing by # of seconds in a day
+		$days = self::time_between( $date1, $date2 ) / ( 60 * 60 * 24 );
+
+		return (int) floor( $days );
+	}
+
+	/**
 	 * Returns the weekday of the 1st day of the month in
 	 * "w" format (ie, Sunday is 0 and Saturday is 6) or
 	 * false if this cannot be established.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $month
 	 *
-	 * @return int|bool
+	 * @return DateTime|DateTimeImmutable|bool
 	 */
 	public static function first_day_in_month( $month ) {
 		try {
 			$date  = static::get( $month );
-			$day_1 = static::get( $date->format( 'Y-m-01 ' ) );
-			return (int) $day_1->format( 'w' );
+			return static::get( $date->format( 'Y-m-01' ) );
 		} catch ( Exception $e ) {
 			return false;
 		}
@@ -345,47 +356,46 @@ class Dates {
 	 * @param string|int|DateTime|DateTimeImmutable $curdate     A timestamp.
 	 * @param int                                   $day_of_week The index of the day of the week.
 	 *
-	 * @return int The timestamp of the date that fits the qualifications.
+	 * @return DateTime|DateTimeImmutable The date that fits the qualifications.
 	 */
 	public static function get_first_day_of_week_in_month( $curdate, $day_of_week ) {
 		$curdate_object = static::get( $curdate );
 		$nextdate       = static::get( $curdate_object->format( 'Y-m-01' ) );
+		$failover_date  = $nextdate;
 
-		while (
-			! (
-				$day_of_week > 0
-				&& $nextdate->format( 'N' ) == $day_of_week
-			)
-			&& ! (
-				$day_of_week == -1
-				&& self::is_weekday( $nextdate->getTimestamp() )
-			)
-			&& ! (
-				$day_of_week == -2
-				&& self::is_weekend( $nextdate->getTimestamp() )
-			)
-		) {
-			$nextdate = static::get( $nextdate->format( static::DBDATETIMEFORMAT ) . ' + 1 day' );
+		if ( $day_of_week < 1 ) {
+			$day_of_week = 1;
+		} elseif ( $day_of_week > 7 ) {
+			$day_of_week = 7;
 		}
 
-		return $nextdate->getTimestamp();
+		for ( $i = 0; $i < 7; $i++ ) {
+			if ( (int) $nextdate->format( 'N' ) === $day_of_week ) {
+				return $nextdate;
+			}
+
+			$nextdate = $nextdate->modify( '+ 1 day' );
+		}
+
+		// For some reason, we couldn't find a date. Fail over to the first of the month.
+		return $failover_date;
 	}
 
 	/**
 	 * Returns the last day of the month given a php date.
 	 *
-	 * @param string|int|DateTime|DateTimeImmutable $timestamp THe timestamp.
+	 * @param string|int|DateTime|DateTimeImmutable $timestamp The timestamp.
 	 *
-	 * @return string The last day of the month.
+	 * @return DateTime|DateTimeImmutable The last day of the month.
 	 */
-	public static function get_last_day_of_month( $timestamp ): string {
+	public static function get_last_day_of_month( $timestamp ) {
 		$date_object = static::get( $timestamp );
 		$curmonth    = (int) $date_object->format( 'n' );
 		$curYear     = (int) $date_object->format( 'Y' );
 		$nextmonth   = static::get( "{$curYear}-{$curmonth}-01" );
 		$lastDay     = $nextmonth->modify( '-1 day' );
 
-		return $lastDay->format( 'j' );
+		return $lastDay;
 	}
 
 	/**
@@ -394,19 +404,31 @@ class Dates {
 	 * @param string|int|DateTime|DateTimeImmutable $curdate     A timestamp.
 	 * @param int                                   $day_of_week The index of the day of the week.
 	 *
-	 * @return int The timestamp of the date that fits the qualifications.
+	 * @return DateTime|DateTimeImmutable The timestamp of the date that fits the qualifications.
 	 */
-	public static function get_last_day_of_week_in_month( $curdate, int $day_of_week ): int {
-		$curdate           = static::get( $curdate );
-		$last_day_of_month = (int) static::get_last_day_of_month( $curdate->getTimestamp() );
-		$curdate_string    = $curdate->format( "Y-m-{$last_day_of_month} H:i:s" );
-		$nextdate          = static::get( $curdate_string );
+	public static function get_last_day_of_week_in_month( $curdate, int $day_of_week ) {
+		$curdate            = static::get( $curdate );
+		$last_day_of_month  = static::get_last_day_of_month( $curdate );
+		$last_date_of_month = $last_day_of_month->format( 'j' );
+		$curdate_string     = $curdate->format( "Y-m-{$last_date_of_month} H:i:s" );
+		$nextdate           = static::get( $curdate_string );
+		$failover_date      = $last_day_of_month;
 
-		while ( $nextdate->format( 'N' ) != $day_of_week && $day_of_week != -1 ) {
+		if ( $day_of_week < 1 ) {
+			$day_of_week = 1;
+		} elseif ( $day_of_week > 7 ) {
+			$day_of_week = 7;
+		}
+
+		for ( $i = 0; $i < 7; $i++ ) {
+			if ( (int) $nextdate->format( 'N' ) === $day_of_week ) {
+				return $nextdate;
+			}
+
 			$nextdate = $nextdate->modify( '-1 day' );
 		}
 
-		return $nextdate->getTimestamp();
+		return $failover_date;
 	}
 
 	/**
@@ -699,11 +721,12 @@ class Dates {
 	 * Returns the hour only.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $date The date.
+	 * @param bool                                  $use_24_hour Whether to use 24 hour format.
 	 *
 	 * @return string The hour only.
 	 */
-	public static function hour_only( $date ): string {
-		return static::get( $date )->format( self::HOURFORMAT );
+	public static function hour_only( $date, $use_24_hour = false ): string {
+		return static::get( $date )->format( $use_24_hour ? 'H' : static::HOURFORMAT );
 	}
 
 	/**
@@ -865,7 +888,9 @@ class Dates {
 			return $cache_date_check[ $date ];
 		}
 
-		$cache_date_check[ $date ] = self::mutable( $date, null, false ) instanceof DateTimeInterface;
+		$date_object = self::mutable( $date, null, false );
+
+		$cache_date_check[ $date ] = $date_object instanceof DateTimeInterface;
 
 		static::set_cache( $cache_var_name, $cache_date_check );
 
@@ -899,15 +924,15 @@ class Dates {
 	 * "w" format (ie, Sunday is 0 and Saturday is 6) or
 	 * false if this cannot be established.
 	 *
-	 * @param mixed $month
+	 * @param string|int|DateTime|DateTimeImmutable $month
 	 *
-	 * @return int|bool
+	 * @return DateTime|DateTimeImmutable|bool
 	 */
 	public static function last_day_in_month( $month ) {
 		try {
 			$date  = static::get( $month );
 			$day_1 = static::get( $date->format( 'Y-m-t' ) );
-			return (int) $day_1->format( 'w' );
+			return $day_1;
 		} catch ( Exception $e ) {
 			return false;
 		}
@@ -1073,15 +1098,26 @@ class Dates {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $date Valid DateTime string.
+	 * @param string|int|DateTime|DateTimeImmutable $date Valid DateTime string.
 	 *
-	 * @return string Rounded datetime string
+	 * @return DateTime|DateTimeImmutable Rounded datetime string
 	 */
 	public static function round_nearest_half_hour( $date ) {
 		$date_object     = static::mutable( $date );
 		$rounded_minutes = floor( $date_object->format( 'i' ) / 30 ) * 30;
 
-		return $date_object->format( 'Y-m-d H:' ) . $rounded_minutes . ':00';
+		return static::get( $date_object->format( 'Y-m-d H:' ) . $rounded_minutes . ':00' );
+	}
+
+	/**
+	 * Returns the seconds only.
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
+	 *
+	 * @return string The seconds only.
+	 */
+	public static function seconds_only( $date ) {
+		return static::get( $date )->format( 's' );
 	}
 
 	/**
