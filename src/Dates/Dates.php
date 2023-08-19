@@ -50,10 +50,7 @@ class Dates {
 	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
 	 */
 	public static function build( $datetime = 'now', $timezone = null, bool $with_fallback = true, bool $immutable = true ) {
-		if ( $immutable ) {
-			return static::immutable( $datetime, $timezone, $with_fallback );
-		}
-		return self::mutable( $datetime, $timezone, $with_fallback );
+		static::get( $datetime, $timezone, $with_fallback, $immutable );
 	}
 
 	/**
@@ -335,7 +332,10 @@ class Dates {
 	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
 	 */
 	public static function get( $datetime = 'now', $timezone = null, bool $with_fallback = true, bool $immutable = true ) {
-		return static::build( $datetime, $timezone, $with_fallback, $immutable );
+		if ( $immutable ) {
+			return static::immutable( $datetime, $timezone, $with_fallback );
+		}
+		return self::mutable( $datetime, $timezone, $with_fallback );
 	}
 
 	/**

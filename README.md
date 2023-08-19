@@ -22,14 +22,18 @@ composer require stellarwp/dates
 
 * [Constants](#constants)
 * [Dates](/docs/classes/StellarWP/Dates/Dates.md)
-  * [build_date_object](/docs/classes/StellarWP/Dates/Dates.md#build_date_object)
+  * [build](/docs/classes/StellarWP/Dates/Dates.md#build) - alias for `get()`
+  * [build_date_object](/docs/classes/StellarWP/Dates/Dates.md#build_date_object) - alias for `mutable()`
   * [build_localized_months](/docs/classes/StellarWP/Dates/Dates.md#build_localized_months)
   * [build_localized_weekdays](/docs/classes/StellarWP/Dates/Dates.md#build_localized_weekdays)
+  * [catch_and_throw](/docs/classes/StellarWP/Dates/Dates.md#catch_and_throw)
   * [clear_cache](/docs/classes/StellarWP/Dates/Dates.md#clear_cache)
-  * [date_diff](/docs/classes/StellarWP/Dates/Dates.md#date_diff)
+  * [date_diff](/docs/classes/StellarWP/Dates/Dates.md#date_diff) - alias for `diff()`
   * [date_only](/docs/classes/StellarWP/Dates/Dates.md#date_only)
   * [datetime_from_format](/docs/classes/StellarWP/Dates/Dates.md#datetime_from_format)
+  * [diff](/docs/classes/StellarWP/Dates/Dates.md#diff)
   * [first_day_in_month](/docs/classes/StellarWP/Dates/Dates.md#first_day_in_month)
+  * [get](/docs/classes/StellarWP/Dates/Dates.md#get) - calls `immutable()` (default) or `mutable()`
   * [get_cache](/docs/classes/StellarWP/Dates/Dates.md#get_cache)
   * [get_first_day_of_week_in_month](/docs/classes/StellarWP/Dates/Dates.md#get_first_day_of_week_in_month)
   * [get_last_day_of_month](/docs/classes/StellarWP/Dates/Dates.md#get_last_day_of_month)
@@ -56,9 +60,11 @@ composer require stellarwp/dates
   * [minutes_only](/docs/classes/StellarWP/Dates/Dates.md#minutes_only)
   * [mutable](/docs/classes/StellarWP/Dates/Dates.md#mutable)
   * [number_to_ordinal](/docs/classes/StellarWP/Dates/Dates.md#number_to_ordinal)
-  * [range_coincides](/docs/classes/StellarWP/Dates/Dates.md#range_coincides)
+  * [range_coincides](/docs/classes/StellarWP/Dates/Dates.md#range_coincides) - alias for `range_overlaps()`
+  * [range_overlaps](/docs/classes/StellarWP/Dates/Dates.md#range_overlaps)
   * [reformat](/docs/classes/StellarWP/Dates/Dates.md#reformat)
   * [round_nearest_half_hour](/docs/classes/StellarWP/Dates/Dates.md#round_nearest_half_hour)
+  * [seconds_only](/docs/classes/StellarWP/Dates/Dates.md#seconds_only)
   * [set_cache](/docs/classes/StellarWP/Dates/Dates.md#set_cache)
   * [sort](/docs/classes/StellarWP/Dates/Dates.md#sort)
   * [time_between](/docs/classes/StellarWP/Dates/Dates.md#time_between)
@@ -81,6 +87,7 @@ composer require stellarwp/dates
   * [clear_site_timezone_abbr](/docs/classes/StellarWP/Dates/Timezones.md#clear_site_timezone_abbr)
   * [convert_date_from_timezone_to_timezone](/docs/classes/StellarWP/Dates/Timezones.md#convert_date_from_timezone_to_timezone)
   * [generate_timezone_string_from_utc_offset](/docs/classes/StellarWP/Dates/Timezones.md#generate_timezone_string_from_utc_offset)
+  * [get_system_timezone](/docs/classes/StellarWP/Dates/Timezones.md#get_system_timezone)
   * [get_timezone](/docs/classes/StellarWP/Dates/Timezones.md#get_timezone)
   * [get_valid_timezone](/docs/classes/StellarWP/Dates/Timezones.md#get_valid_timezone)
   * [invalided_caches](/docs/classes/StellarWP/Dates/Timezones.md#invalided_caches)
