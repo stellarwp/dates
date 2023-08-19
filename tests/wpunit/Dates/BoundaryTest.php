@@ -292,4 +292,108 @@ class BoundaryTest extends DatesTestCase {
 	public function it_should_get_last_day_of_the_week_in_month( $date, $day, $expected ) {
 		$this->assertEquals( $expected, Dates::get_last_day_of_week_in_month( $date, $day )->format( Dates::DBDATEFORMAT ) );
 	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_get_the_start_and_end_of_the_week() {
+		$days = Dates::get_week_start_end( '2023-01-18' );
+		$this->assertEquals( '2023-01-16', $days[0]->format( Dates::DBDATEFORMAT ) );
+		$this->assertEquals( '2023-01-22', $days[1]->format( Dates::DBDATEFORMAT ) );
+
+		$days = Dates::get_week_start_end( '2023-01-18', 0 );
+		$this->assertEquals( '2023-01-15', $days[0]->format( Dates::DBDATEFORMAT ) );
+		$this->assertEquals( '2023-01-21', $days[1]->format( Dates::DBDATEFORMAT ) );
+
+		$days = Dates::get_week_start_end( '2023-01-18', 3 );
+		$this->assertEquals( '2023-01-18', $days[0]->format( Dates::DBDATEFORMAT ) );
+		$this->assertEquals( '2023-01-24', $days[1]->format( Dates::DBDATEFORMAT ) );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_end_after_7_days() {
+		$this->assertEquals( 6, Dates::week_ends_on( 0 ) );
+		$this->assertEquals( 0, Dates::week_ends_on( 1 ) );
+		$this->assertEquals( 1, Dates::week_ends_on( 2 ) );
+		$this->assertEquals( 2, Dates::week_ends_on( 3 ) );
+		$this->assertEquals( 3, Dates::week_ends_on( 4 ) );
+		$this->assertEquals( 4, Dates::week_ends_on( 5 ) );
+		$this->assertEquals( 5, Dates::week_ends_on( 6 ) );
+	}
+
+	public function get_range_overlaps() {
+		yield 'range 2 starts before range 1 and ends during' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2022-12-15',
+			'range_2_end'   => '2023-01-15',
+			'expected'      => true,
+		];
+
+		yield 'range 2 starts during range 1 and ends after' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2023-01-15',
+			'range_2_end'   => '2023-02-15',
+			'expected'      => true,
+		];
+
+		yield 'range 2 starts before range 1 and ends after' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2022-12-15',
+			'range_2_end'   => '2023-02-15',
+			'expected'      => true,
+		];
+
+		yield 'range 2 starts in range 1 and ends during' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2023-01-15',
+			'range_2_end'   => '2023-01-25',
+			'expected'      => true,
+		];
+
+		yield 'range 2 starts at the end of range 1 and ends after' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2023-01-31',
+			'range_2_end'   => '2023-02-15',
+			'expected'      => false,
+		];
+
+		yield 'range 2 starts and ends after range 1' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2023-02-01',
+			'range_2_end'   => '2023-02-15',
+			'expected'      => false,
+		];
+
+		yield 'range 2 starts and ends before range 1' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2022-12-01',
+			'range_2_end'   => '2022-12-31',
+			'expected'      => false,
+		];
+
+		yield 'range 2 starts before range 1 and ends on the start' => [
+			'range_1_start' => '2023-01-01',
+			'range_1_end'   => '2023-01-31',
+			'range_2_start' => '2022-12-01',
+			'range_2_end'   => '2022-01-01',
+			'expected'      => false,
+		];
+	}
+
+	/**
+	 * @dataProvider get_range_overlaps
+	 * @test
+	 */
+	public function it_should_identify_range_overlaps( $range_1_start, $range_1_end, $range_2_start, $range_2_end, $expected ) {
+		$this->assertEquals( $expected, Dates::range_overlaps( $range_1_start, $range_1_end, $range_2_start, $range_2_end ) );
+	}
 }

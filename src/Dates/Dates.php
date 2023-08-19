@@ -1043,17 +1043,36 @@ class Dates {
 	}
 
 	/**
-	 * Given 2 datetime ranges, return whether the 2nd one occurs during the 1st one
+	 * Alias for range_overlaps(). Given 2 datetime ranges, return whether the 2nd one occurs during the 1st one
 	 * Note: all params should be unix timestamps
 	 *
-	 * @param integer $range_1_start timestamp for start of the first range
-	 * @param integer $range_1_end   timestamp for end of the first range
-	 * @param integer $range_2_start timestamp for start of the second range
-	 * @param integer $range_2_end   timestamp for end of the second range
+	 * @param string|DateTimeInterface|int $range_1_start timestamp, dates string, or DateTimeInterface for start of the first range
+	 * @param string|DateTimeInterface|int $range_1_end   timestamp, dates string, or DateTimeInterface for end of the first range
+	 * @param string|DateTimeInterface|int $range_2_start timestamp, dates string, or DateTimeInterface for start of the second range
+	 * @param string|DateTimeInterface|int $range_2_end   timestamp, dates string, or DateTimeInterface for end of the second range
 	 *
 	 * @return bool
 	 */
-	public static function range_coincides( int $range_1_start, int $range_1_end, int $range_2_start, int $range_2_end ): bool {
+	public static function range_coincides( $range_1_start, $range_1_end, $range_2_start, $range_2_end ): bool {
+		return static::range_overlaps( $range_1_start, $range_1_end, $range_2_start, $range_2_end );
+	}
+
+	/**
+	 * Given 2 datetime ranges, return whether the 2nd one occurs during the 1st one
+	 * Note: all params should be unix timestamps
+	 *
+	 * @param string|DateTimeInterface|int $range_1_start timestamp, dates string, or DateTimeInterface for start of the first range
+	 * @param string|DateTimeInterface|int $range_1_end   timestamp, dates string, or DateTimeInterface for end of the first range
+	 * @param string|DateTimeInterface|int $range_2_start timestamp, dates string, or DateTimeInterface for start of the second range
+	 * @param string|DateTimeInterface|int $range_2_end   timestamp, dates string, or DateTimeInterface for end of the second range
+	 *
+	 * @return bool
+	 */
+	public static function range_overlaps( $range_1_start, $range_1_end, $range_2_start, $range_2_end ): bool {
+		$range_1_start = static::get( $range_1_start )->getTimestamp();
+		$range_1_end   = static::get( $range_1_end )->getTimestamp();
+		$range_2_start = static::get( $range_2_start )->getTimestamp();
+		$range_2_end   = static::get( $range_2_end )->getTimestamp();
 
 		// Initialize the return value
 		$range_coincides = false;
@@ -1074,7 +1093,6 @@ class Dates {
 		}
 
 		return $range_coincides;
-
 	}
 
 	/**
