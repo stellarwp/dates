@@ -50,7 +50,7 @@ class Dates {
 	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
 	 */
 	public static function build( $datetime = 'now', $timezone = null, bool $with_fallback = true, bool $immutable = true ) {
-		static::get( $datetime, $timezone, $with_fallback, $immutable );
+		return static::get( $datetime, $timezone, $with_fallback, $immutable );
 	}
 
 	/**
