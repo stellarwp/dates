@@ -31,29 +31,6 @@ class Dates {
 	public static $cache = [];
 
 	/**
-	 * Builds a date object from a given datetime and timezone.
-	 *
-	 * Defaults to immutable, but can be set to return a mutable DateTime object.
-	 *
-	 * @since 1.0.5
-	 *
-	 * @param string|DateTimeInterface|int $datetime      A `strtotime` parsable string, a DateTime object or
-	 *                                                    a timestamp; defaults to `now`.
-	 * @param string|DateTimeZone|null     $timezone      A timezone string, UTC offset or DateTimeZone object;
-	 *                                                    defaults to the site timezone; this parameter is ignored
-	 *                                                    if the `$datetime` parameter is a DatTime object.
-	 * @param bool                         $with_fallback Whether to return a DateTime object even when the date data is
-	 *                                                    invalid or not; defaults to `true`.
-	 * @param bool                         $immutable     Whether to return a DateTimeImmutable object or a DateTime object;
-	 *
-	 * @return DateTime|DateTimeImmutable|false A DateTime object built using the specified date, time and timezone; if `$with_fallback`
-	 *                        is set to `false` then `false` will be returned if a DateTime object could not be built.
-	 */
-	public static function build( $datetime = 'now', $timezone = null, bool $with_fallback = true, bool $immutable = true ) {
-		return static::get( $datetime, $timezone, $with_fallback, $immutable );
-	}
-
-	/**
 	 * Alias of the mutable() method. Builds a date object from a given datetime and timezone.
 	 *
 	 * @since 1.0.0
@@ -134,6 +111,20 @@ class Dates {
 	}
 
 	/**
+	 * Alias for `date_only()`. Returns the date only.
+	 *
+	 * @since 1.1.2
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date        The date (timestamp or string).
+	 * @param string|null                           $format      The format used
+	 *
+	 * @return string The date only in DB format.
+	 */
+	public static function date( $date = 'now' , $format = null ) {
+		return static::date_only( $date, $format );
+	}
+
+	/**
 	 * Alias for diff(). The number of days between two arbitrary dates.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $date1 The first date.
@@ -156,7 +147,7 @@ class Dates {
 	 *
 	 * @return string The date only in DB format.
 	 */
-	public static function date_only( $date, $isTimestamp = false, $format = null ) {
+	public static function date_only( $date = 'now' , $isTimestamp = false, $format = null ) {
 		$date = static::get( $date );
 
 		if ( is_null( $format ) ) {
@@ -718,6 +709,20 @@ class Dates {
 	}
 
 	/**
+	 * Alias of `hour_only()`. Returns the hour only.
+	 *
+	 * @since 1.1.2
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date        The date.
+	 * @param bool                                  $use_24_hour Whether to use 24 hour format.
+	 *
+	 * @return string The hour only.
+	 */
+	public static function hour( $date = 'now' , $use_24_hour = false ): string {
+		return static::hour_only( $date, $use_24_hour );
+	}
+
+	/**
 	 * Returns the hour only.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $date The date.
@@ -725,7 +730,7 @@ class Dates {
 	 *
 	 * @return string The hour only.
 	 */
-	public static function hour_only( $date, $use_24_hour = false ): string {
+	public static function hour_only( $date = 'now' , $use_24_hour = false ): string {
 		return static::get( $date )->format( $use_24_hour ? 'H' : static::HOURFORMAT );
 	}
 
@@ -799,18 +804,18 @@ class Dates {
 	}
 
 	/**
-	 * Determine if "now" is between two dates.
+	 * Determine if the given date is between two dates.
 	 *
-	 * @since 1.0.0
+	 * @since 1.1.2
 	 *
+	 * @param string|DateTimeInterface|int $date       A `strtotime` parsable string, a DateTime object or a timestamp.
 	 * @param string|DateTimeInterface|int $start_date A `strtotime` parsable string, a DateTime object or a timestamp.
 	 * @param string|DateTimeInterface|int $end_date   A `strtotime` parsable string, a DateTime object or a timestamp.
-	 * @param string|DateTimeInterface|int $now        A `strtotime` parsable string, a DateTime object or a timestamp. Defaults to 'now'.
 	 *
 	 * @return boolean Whether the current datetime (or passed "now") is between the passed start and end dates.
 	 */
-	public static function is_now( $start_date, $end_date, $now = 'now' ): bool {
-		$now        = self::mutable( $now );
+	public static function is_between( $date, $start_date, $end_date ): bool {
+		$date       = self::mutable( $date );
 		$start_date = self::mutable( $start_date );
 		$end_date   = self::mutable( $end_date );
 
@@ -823,16 +828,31 @@ class Dates {
 		[ $start_date, $end_date ] = self::sort( [ $start_date, $end_date ] );
 
 		// If span starts after now, return false.
-		if ( $start_date > $now ) {
+		if ( $start_date > $date ) {
 			return false;
 		}
 
 		// If span ends on or before now, return false.
-		if ( $end_date <= $now ) {
+		if ( $end_date <= $date ) {
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determine if "now" is between two dates. Calls `is_date_between()` with a different parameter order.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string|DateTimeInterface|int $start_date A `strtotime` parsable string, a DateTime object or a timestamp.
+	 * @param string|DateTimeInterface|int $end_date   A `strtotime` parsable string, a DateTime object or a timestamp.
+	 * @param string|DateTimeInterface|int $now        A `strtotime` parsable string, a DateTime object or a timestamp. Defaults to 'now'.
+	 *
+	 * @return boolean Whether the current datetime (or passed "now") is between the passed start and end dates.
+	 */
+	public static function is_now( $start_date, $end_date, $now = 'now' ): bool {
+		return static::is_between( $now, $start_date, $end_date );
 	}
 
 	/**
@@ -872,14 +892,14 @@ class Dates {
 	/**
 	 * Validates a date string to make sure it can be used to build DateTime objects.
 	 *
-	 * @since 1.0.0
+	 * @since 1.1.2
 	 *
 	 * @param string $date The date string that should validated.
 	 *
 	 * @return bool Whether the date string can be used to build DateTime objects, and is thus parsable by functions
 	 *              like `strtotime`, or not.
 	 */
-	public static function is_valid_date( string $date ): bool {
+	public static function is_valid( string $date ): bool {
 		static $cache_var_name = __FUNCTION__;
 
 		$cache_date_check = static::get_cache( $cache_var_name, [] );
@@ -895,6 +915,20 @@ class Dates {
 		static::set_cache( $cache_var_name, $cache_date_check );
 
 		return $cache_date_check[ $date ];
+	}
+
+	/**
+	 * Alias of `is_valid()`. Validates a date string to make sure it can be used to build DateTime objects.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $date The date string that should validated.
+	 *
+	 * @return bool Whether the date string can be used to build DateTime objects, and is thus parsable by functions
+	 *              like `strtotime`, or not.
+	 */
+	public static function is_valid_date( string $date ): bool {
+		return static::is_valid( $date );
 	}
 
 	/**
@@ -939,14 +973,40 @@ class Dates {
 	}
 
 	/**
+	 * Alias for `meridian_only()`. Returns the meridian (am or pm) only.
+	 *
+	 * @since 1.1.2
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
+	 *
+	 * @return string The meridian only in DB format.
+	 */
+	public static function meridian( $date = 'now'  ): string {
+		return static::meridian_only( $date  );
+	}
+
+	/**
 	 * Returns the meridian (am or pm) only.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $date The date.
 	 *
 	 * @return string The meridian only in DB format.
 	 */
-	public static function meridian_only( $date ): string {
+	public static function meridian_only( $date = 'now'  ): string {
 		return static::get( $date )->format( self::MERIDIANFORMAT );
+	}
+
+	/**
+	 * Alias for `minutes_only`. Returns the meridian (am or pm) only.
+	 *
+	 * @since 1.1.2
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
+	 *
+	 * @return string The meridian only in DB format.
+	 */
+	public static function minutes( $date = 'now'  ): string {
+		return static::minutes_only( $date  );
 	}
 
 	/**
@@ -956,7 +1016,7 @@ class Dates {
 	 *
 	 * @return string The minute only.
 	 */
-	public static function minutes_only( $date ) {
+	public static function minutes_only( $date = 'now'  ) {
 		return static::get( $date )->format( self::MINUTEFORMAT );
 	}
 
@@ -1128,13 +1188,26 @@ class Dates {
 	}
 
 	/**
+	 * Alias for `seconds_only()`. Returns the seconds only.
+	 *
+	 * @since 1.1.2
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
+	 *
+	 * @return string The seconds only.
+	 */
+	public static function seconds( $date = 'now' ) {
+		return static::seconds_only( $date );
+	}
+
+	/**
 	 * Returns the seconds only.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $date The date.
 	 *
 	 * @return string The seconds only.
 	 */
-	public static function seconds_only( $date ) {
+	public static function seconds_only( $date = 'now' ) {
 		return static::get( $date )->format( 's' );
 	}
 
@@ -1198,13 +1271,26 @@ class Dates {
 	}
 
 	/**
+	 * Alias for `time_only()`. Returns the time only.
+	 *
+	 * @since 1.1.2
+	 *
+	 * @param string|int|DateTime|DateTimeImmutable $date The date.
+	 *
+	 * @return string The time only in DB format.
+	 */
+	public static function time( $date = 'now' ): string {
+		return static::time_only( $date );
+	}
+
+	/**
 	 * Returns the time only.
 	 *
 	 * @param string|int|DateTime|DateTimeImmutable $date The date.
 	 *
 	 * @return string The time only in DB format.
 	 */
-	public static function time_only( $date ): string {
+	public static function time_only( $date = 'now'  ): string {
 		$date = static::get( $date );
 		return $date->format( self::DBTIMEFORMAT );
 	}

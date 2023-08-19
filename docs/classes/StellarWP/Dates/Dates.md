@@ -105,40 +105,6 @@ public static $cache
 ## Methods
 
 
-### build
-
-Builds a date object from a given datetime and timezone.
-
-```php
-public static build(string|\DateTimeInterface|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true, bool $immutable = true): \DateTime|\DateTimeImmutable|false
-```
-
-Defaults to immutable, but can be set to return a mutable DateTime object.
-
-* This method is **static**.
-
-
-
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$datetime` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
-| `$timezone` | **string&#124;\DateTimeZone&#124;null** | A timezone string, UTC offset or DateTimeZone object;<br />defaults to the site timezone; this parameter is ignored<br />if the `$datetime` parameter is a DatTime object. |
-| `$with_fallback` | **bool** | Whether to return a DateTime object even when the date data is<br />invalid or not; defaults to `true`. |
-| `$immutable` | **bool** | Whether to return a DateTimeImmutable object or a DateTime object; |
-
-
-**Return Value:**
-
-A DateTime object built using the specified date, time and timezone; if `$with_fallback`
-is set to `false` then `false` will be returned if a DateTime object could not be built.
-
-
-
-***
-
 ### build_date_object
 
 Alias of the mutable() method. Builds a date object from a given datetime and timezone.
@@ -270,6 +236,37 @@ public static clear_cache(): mixed
 
 ***
 
+### date
+
+Alias for `date_only()`. Returns the date only.
+
+```php
+public static date(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;, string|null $format = null): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date (timestamp or string). |
+| `$format` | **string&#124;null** | The format used |
+
+
+**Return Value:**
+
+The date only in DB format.
+
+
+
+***
+
 ### date_diff
 
 Alias for diff(). The number of days between two arbitrary dates.
@@ -306,7 +303,7 @@ The number of days between two dates.
 Returns the date only.
 
 ```php
-public static date_only(string|int|\DateTime|\DateTimeImmutable $date, bool $isTimestamp = false, string|null $format = null): string
+public static date_only(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;, bool $isTimestamp = false, string|null $format = null): string
 ```
 
 
@@ -806,12 +803,43 @@ public static has_cache(string $key): bool
 
 ***
 
+### hour
+
+Alias of `hour_only()`. Returns the hour only.
+
+```php
+public static hour(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;, bool $use_24_hour = false): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
+| `$use_24_hour` | **bool** | Whether to use 24 hour format. |
+
+
+**Return Value:**
+
+The hour only.
+
+
+
+***
+
 ### hour_only
 
 Returns the hour only.
 
 ```php
-public static hour_only(string|int|\DateTime|\DateTimeImmutable $date, bool $use_24_hour = false): string
+public static hour_only(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;, bool $use_24_hour = false): string
 ```
 
 
@@ -902,9 +930,41 @@ The built date interval object.
 
 ***
 
+### is_between
+
+Determine if the given date is between two dates.
+
+```php
+public static is_between(string|\DateTimeInterface|int $date, string|\DateTimeInterface|int $start_date, string|\DateTimeInterface|int $end_date): bool
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. |
+| `$start_date` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. |
+| `$end_date` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. |
+
+
+**Return Value:**
+
+Whether the current datetime (or passed "now") is between the passed start and end dates.
+
+
+
+***
+
 ### is_now
 
-Determine if "now" is between two dates.
+Determine if "now" is between two dates. Calls `is_date_between()` with a different parameter order.
 
 ```php
 public static is_now(string|\DateTimeInterface|int $start_date, string|\DateTimeInterface|int $end_date, string|\DateTimeInterface|int $now = &#039;now&#039;): bool
@@ -960,9 +1020,40 @@ public static is_timestamp( $timestamp): bool
 
 ***
 
-### is_valid_date
+### is_valid
 
 Validates a date string to make sure it can be used to build DateTime objects.
+
+```php
+public static is_valid(string $date): bool
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string** | The date string that should validated. |
+
+
+**Return Value:**
+
+Whether the date string can be used to build DateTime objects, and is thus parsable by functions
+like `strtotime`, or not.
+
+
+
+***
+
+### is_valid_date
+
+Alias of `is_valid()`. Validates a date string to make sure it can be used to build DateTime objects.
 
 ```php
 public static is_valid_date(string $date): bool
@@ -1079,12 +1170,72 @@ public static last_day_in_month(string|int|\DateTime|\DateTimeImmutable $month):
 
 ***
 
+### meridian
+
+Alias for `meridian_only()`. Returns the meridian (am or pm) only.
+
+```php
+public static meridian(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
+
+
+**Return Value:**
+
+The meridian only in DB format.
+
+
+
+***
+
 ### meridian_only
 
 Returns the meridian (am or pm) only.
 
 ```php
-public static meridian_only(string|int|\DateTime|\DateTimeImmutable $date): string
+public static meridian_only(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
+
+
+**Return Value:**
+
+The meridian only in DB format.
+
+
+
+***
+
+### minutes
+
+Alias for `minutes_only`. Returns the meridian (am or pm) only.
+
+```php
+public static minutes(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
 ```
 
 
@@ -1114,7 +1265,7 @@ The meridian only in DB format.
 Returns the minute only.
 
 ```php
-public static minutes_only(string|int|\DateTime|\DateTimeImmutable $date): string
+public static minutes_only(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
 ```
 
 
@@ -1320,12 +1471,42 @@ Rounded datetime string
 
 ***
 
+### seconds
+
+Alias for `seconds_only()`. Returns the seconds only.
+
+```php
+public static seconds(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
+
+
+**Return Value:**
+
+The seconds only.
+
+
+
+***
+
 ### seconds_only
 
 Returns the seconds only.
 
 ```php
-public static seconds_only(string|int|\DateTime|\DateTimeImmutable $date): string
+public static seconds_only(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
 ```
 
 
@@ -1439,12 +1620,42 @@ The number of seconds between the dates.
 
 ***
 
+### time
+
+Alias for `time_only()`. Returns the time only.
+
+```php
+public static time(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
+
+
+**Return Value:**
+
+The time only in DB format.
+
+
+
+***
+
 ### time_only
 
 Returns the time only.
 
 ```php
-public static time_only(string|int|\DateTime|\DateTimeImmutable $date): string
+public static time_only(string|int|\DateTime|\DateTimeImmutable $date = &#039;now&#039;): string
 ```
 
 
@@ -1620,4 +1831,4 @@ public static wp_locale_weekday(int|string $weekday, string $format = &#039;week
 
 
 ***
-> Automatically generated from source code comments on 2023-08-18 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2023-08-19 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)

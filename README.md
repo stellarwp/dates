@@ -22,12 +22,12 @@ composer require stellarwp/dates
 
 * [Constants](#constants)
 * [Dates](/docs/classes/StellarWP/Dates/Dates.md)
-  * [build](/docs/classes/StellarWP/Dates/Dates.md#build) - alias for `get()`
   * [build_date_object](/docs/classes/StellarWP/Dates/Dates.md#build_date_object) - alias for `mutable()`
   * [build_localized_months](/docs/classes/StellarWP/Dates/Dates.md#build_localized_months)
   * [build_localized_weekdays](/docs/classes/StellarWP/Dates/Dates.md#build_localized_weekdays)
   * [catch_and_throw](/docs/classes/StellarWP/Dates/Dates.md#catch_and_throw)
   * [clear_cache](/docs/classes/StellarWP/Dates/Dates.md#clear_cache)
+  * [date](/docs/classes/StellarWP/Dates/Dates.md#date) - alias for `date_only()`
   * [date_diff](/docs/classes/StellarWP/Dates/Dates.md#date_diff) - alias for `diff()`
   * [date_only](/docs/classes/StellarWP/Dates/Dates.md#date_only)
   * [datetime_from_format](/docs/classes/StellarWP/Dates/Dates.md#datetime_from_format)
@@ -47,16 +47,21 @@ composer require stellarwp/dates
   * [get_week_start_end](/docs/classes/StellarWP/Dates/Dates.md#get_week_start_end)
   * [get_weekday_timestamp](/docs/classes/StellarWP/Dates/Dates.md#get_weekday_timestamp)
   * [has_cache](/docs/classes/StellarWP/Dates/Dates.md#has_cache)
+  * [hour](/docs/classes/StellarWP/Dates/Dates.md#hour) - alias for `hour_only()`
   * [hour_only](/docs/classes/StellarWP/Dates/Dates.md#hour_only)
   * [immutable](/docs/classes/StellarWP/Dates/Dates.md#immutable)
   * [interval](/docs/classes/StellarWP/Dates/Dates.md#interval)
-  * [is_now](/docs/classes/StellarWP/Dates/Dates.md#is_now)
+  * [is_between](/docs/classes/StellarWP/Dates/Dates.md#is_date_between)
+  * [is_now](/docs/classes/StellarWP/Dates/Dates.md#is_now) - calls `is_between()` with a different parameter order, where the date to look for is last and optional.
   * [is_timestamp](/docs/classes/StellarWP/Dates/Dates.md#is_timestamp)
-  * [is_valid_date](/docs/classes/StellarWP/Dates/Dates.md#is_valid_date)
+  * [is_valid](/docs/classes/StellarWP/Dates/Dates.md#is_valid)
+  * [is_valid_date](/docs/classes/StellarWP/Dates/Dates.md#is_valid_date) - alias for `is_valid()`
   * [is_weekday](/docs/classes/StellarWP/Dates/Dates.md#is_weekday)
   * [is_weekend](/docs/classes/StellarWP/Dates/Dates.md#is_weekend)
   * [last_day_in_month](/docs/classes/StellarWP/Dates/Dates.md#last_day_in_month)
+  * [meridian](/docs/classes/StellarWP/Dates/Dates.md#meridian) - alias for `meridian_only()`
   * [meridian_only](/docs/classes/StellarWP/Dates/Dates.md#meridian_only)
+  * [minutes](/docs/classes/StellarWP/Dates/Dates.md#minutes)
   * [minutes_only](/docs/classes/StellarWP/Dates/Dates.md#minutes_only)
   * [mutable](/docs/classes/StellarWP/Dates/Dates.md#mutable)
   * [number_to_ordinal](/docs/classes/StellarWP/Dates/Dates.md#number_to_ordinal)
@@ -64,10 +69,12 @@ composer require stellarwp/dates
   * [range_overlaps](/docs/classes/StellarWP/Dates/Dates.md#range_overlaps)
   * [reformat](/docs/classes/StellarWP/Dates/Dates.md#reformat)
   * [round_nearest_half_hour](/docs/classes/StellarWP/Dates/Dates.md#round_nearest_half_hour)
+  * [seconds](/docs/classes/StellarWP/Dates/Dates.md#seconds) - alias for `seconds_only()`
   * [seconds_only](/docs/classes/StellarWP/Dates/Dates.md#seconds_only)
   * [set_cache](/docs/classes/StellarWP/Dates/Dates.md#set_cache)
   * [sort](/docs/classes/StellarWP/Dates/Dates.md#sort)
   * [time_between](/docs/classes/StellarWP/Dates/Dates.md#time_between)
+  * [time](/docs/classes/StellarWP/Dates/Dates.md#time) - alias for `time_only()`
   * [time_only](/docs/classes/StellarWP/Dates/Dates.md#time_only)
   * [unescape_date_format](/docs/classes/StellarWP/Dates/Dates.md#unescape_date_format)
   * [week_ends_on](/docs/classes/StellarWP/Dates/Dates.md#week_ends_on)
