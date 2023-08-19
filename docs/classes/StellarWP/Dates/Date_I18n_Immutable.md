@@ -77,4 +77,4 @@ Translated date.
 
 
 ***
-> Automatically generated from source code comments on 2023-03-30 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2023-08-18 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)

@@ -105,12 +105,46 @@ public static $cache
 ## Methods
 
 
-### build_date_object
+### build
 
 Builds a date object from a given datetime and timezone.
 
 ```php
-public static build_date_object(string|\DateTime|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true): \DateTime|false
+public static build(string|\DateTimeInterface|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true, bool $immutable = true): \DateTime|\DateTimeImmutable|false
+```
+
+Defaults to immutable, but can be set to return a mutable DateTime object.
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$datetime` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
+| `$timezone` | **string&#124;\DateTimeZone&#124;null** | A timezone string, UTC offset or DateTimeZone object;<br />defaults to the site timezone; this parameter is ignored<br />if the `$datetime` parameter is a DatTime object. |
+| `$with_fallback` | **bool** | Whether to return a DateTime object even when the date data is<br />invalid or not; defaults to `true`. |
+| `$immutable` | **bool** | Whether to return a DateTimeImmutable object or a DateTime object; |
+
+
+**Return Value:**
+
+A DateTime object built using the specified date, time and timezone; if `$with_fallback`
+is set to `false` then `false` will be returned if a DateTime object could not be built.
+
+
+
+***
+
+### build_date_object
+
+Alias of the mutable() method. Builds a date object from a given datetime and timezone.
+
+```php
+public static build_date_object(string|\DateTimeInterface|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true): \DateTime|false
 ```
 
 
@@ -124,7 +158,7 @@ public static build_date_object(string|\DateTime|int $datetime = &#039;now&#039;
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$datetime` | **string&#124;\DateTime&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
+| `$datetime` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
 | `$timezone` | **string&#124;\DateTimeZone&#124;null** | A timezone string, UTC offset or DateTimeZone object;<br />defaults to the site timezone; this parameter is ignored<br />if the `$datetime` parameter is a DatTime object. |
 | `$with_fallback` | **bool** | Whether to return a DateTime object even when the date data is<br />invalid or not; defaults to `true`. |
 
@@ -178,6 +212,44 @@ private static build_localized_weekdays(): mixed
 
 ***
 
+### catch_and_throw
+
+A convenience function used to cast errors to exceptions.
+
+```php
+public static catch_and_throw(mixed $errno, mixed $errstr): mixed
+```
+
+Use in `set_error_handler` calls:
+
+try{
+    set_error_handler( [ __CLASS__, 'catch_and_throw' ] );
+    // ...do something that could generate an error...
+    restore_error_handler();
+} catch ( RuntimeException $e ) {
+    // Handle the exception.
+}
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$errno` | **mixed** |  |
+| `$errstr` | **mixed** |  |
+
+
+
+**See Also:**
+
+* \StellarWP\Dates\set_error_handler() - * \StellarWP\Dates\restore_error_handler() - 
+
+***
+
 ### clear_cache
 
 Resets the cache.
@@ -200,10 +272,10 @@ public static clear_cache(): mixed
 
 ### date_diff
 
-The number of days between two arbitrary dates.
+Alias for diff(). The number of days between two arbitrary dates.
 
 ```php
-public static date_diff(string $date1, string $date2): int
+public static date_diff(string|int|\DateTime|\DateTimeImmutable $date1, string|int|\DateTime|\DateTimeImmutable $date2): int
 ```
 
 
@@ -217,8 +289,8 @@ public static date_diff(string $date1, string $date2): int
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date1` | **string** | The first date. |
-| `$date2` | **string** | The second date. |
+| `$date1` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The first date. |
+| `$date2` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The second date. |
 
 
 **Return Value:**
@@ -234,7 +306,7 @@ The number of days between two dates.
 Returns the date only.
 
 ```php
-public static date_only(int|string $date, bool $isTimestamp = false, string|null $format = null): string
+public static date_only(string|int|\DateTime|\DateTimeImmutable $date, bool $isTimestamp = false, string|null $format = null): string
 ```
 
 
@@ -248,7 +320,7 @@ public static date_only(int|string $date, bool $isTimestamp = false, string|null
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date` | **int&#124;string** | The date (timestamp or string). |
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date (timestamp or string). |
 | `$isTimestamp` | **bool** | Is $date in timestamp format? |
 | `$format` | **string&#124;null** | The format used |
 
@@ -293,14 +365,12 @@ A DB formated Date, includes time if possible
 
 ***
 
-### first_day_in_month
+### diff
 
-Returns the weekday of the 1st day of the month in
-"w" format (ie, Sunday is 0 and Saturday is 6) or
-false if this cannot be established.
+The number of days between two arbitrary dates.
 
 ```php
-public static first_day_in_month(mixed $month): int|bool
+public static diff(string|int|\DateTime|\DateTimeImmutable $date1, string|int|\DateTime|\DateTimeImmutable $date2): int
 ```
 
 
@@ -314,8 +384,75 @@ public static first_day_in_month(mixed $month): int|bool
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$month` | **mixed** |  |
+| `$date1` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The first date. |
+| `$date2` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The second date. |
 
+
+**Return Value:**
+
+The number of days between two dates.
+
+
+
+***
+
+### first_day_in_month
+
+Returns the weekday of the 1st day of the month in
+"w" format (ie, Sunday is 0 and Saturday is 6) or
+false if this cannot be established.
+
+```php
+public static first_day_in_month(string|int|\DateTime|\DateTimeImmutable $month): \DateTime|\DateTimeImmutable|bool
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$month` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** |  |
+
+
+
+
+***
+
+### get
+
+Builds a date object from a given datetime and timezone.
+
+```php
+public static get(string|\DateTimeInterface|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true, bool $immutable = true): \DateTime|\DateTimeImmutable|false
+```
+
+Defaults to immutable, but can be set to return a mutable DateTime object.
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$datetime` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
+| `$timezone` | **string&#124;\DateTimeZone&#124;null** | A timezone string, UTC offset or DateTimeZone object;<br />defaults to the site timezone; this parameter is ignored<br />if the `$datetime` parameter is a DatTime object. |
+| `$with_fallback` | **bool** | Whether to return a DateTime object even when the date data is<br />invalid or not; defaults to `true`. |
+| `$immutable` | **bool** | Whether to return a DateTimeImmutable object or a DateTime object; |
+
+
+**Return Value:**
+
+A DateTime object built using the specified date, time and timezone; if `$with_fallback`
+is set to `false` then `false` will be returned if a DateTime object could not be built.
 
 
 
@@ -353,7 +490,7 @@ public static get_cache(string $key, mixed $default = null): mixed
 Gets the first day of the week in a month (ie the first Tuesday).
 
 ```php
-public static get_first_day_of_week_in_month(int $curdate, int $day_of_week): int
+public static get_first_day_of_week_in_month(string|int|\DateTime|\DateTimeImmutable $curdate, int $day_of_week): \DateTime|\DateTimeImmutable
 ```
 
 
@@ -367,13 +504,13 @@ public static get_first_day_of_week_in_month(int $curdate, int $day_of_week): in
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$curdate` | **int** | A timestamp. |
+| `$curdate` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | A timestamp. |
 | `$day_of_week` | **int** | The index of the day of the week. |
 
 
 **Return Value:**
 
-The timestamp of the date that fits the qualifications.
+The date that fits the qualifications.
 
 
 
@@ -384,7 +521,7 @@ The timestamp of the date that fits the qualifications.
 Returns the last day of the month given a php date.
 
 ```php
-public static get_last_day_of_month(int $timestamp): string
+public static get_last_day_of_month(string|int|\DateTime|\DateTimeImmutable $timestamp): \DateTime|\DateTimeImmutable
 ```
 
 
@@ -398,7 +535,7 @@ public static get_last_day_of_month(int $timestamp): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$timestamp` | **int** | THe timestamp. |
+| `$timestamp` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The timestamp. |
 
 
 **Return Value:**
@@ -414,7 +551,7 @@ The last day of the month.
 Gets the last day of the week in a month (ie the last Tuesday).  Passing in -1 gives you the last day in the month.
 
 ```php
-public static get_last_day_of_week_in_month(int $curdate, int $day_of_week): int
+public static get_last_day_of_week_in_month(string|int|\DateTime|\DateTimeImmutable $curdate, int $day_of_week): \DateTime|\DateTimeImmutable
 ```
 
 
@@ -428,7 +565,7 @@ public static get_last_day_of_week_in_month(int $curdate, int $day_of_week): int
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$curdate` | **int** | A timestamp. |
+| `$curdate` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | A timestamp. |
 | `$day_of_week` | **int** | The index of the day of the week. |
 
 
@@ -674,7 +811,7 @@ public static has_cache(string $key): bool
 Returns the hour only.
 
 ```php
-public static hour_only(string $date): string
+public static hour_only(string|int|\DateTime|\DateTimeImmutable $date, bool $use_24_hour = false): string
 ```
 
 
@@ -688,7 +825,8 @@ public static hour_only(string $date): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date` | **string** | The date. |
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
+| `$use_24_hour` | **bool** | Whether to use 24 hour format. |
 
 
 **Return Value:**
@@ -704,10 +842,10 @@ The hour only.
 Builds the immutable version of a date from a string, integer (timestamp) or \DateTime object.
 
 ```php
-public static immutable(string|\DateTime|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true): \DateTimeImmutable|false
+public static immutable(string|\DateTimeInterface|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true): \DateTimeImmutable|false
 ```
 
-It's the immutable version of the `Dates::build_date_object` method.
+It's the immutable version of the `Dates::mutable` method.
 
 * This method is **static**.
 
@@ -718,7 +856,7 @@ It's the immutable version of the `Dates::build_date_object` method.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$datetime` | **string&#124;\DateTime&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
+| `$datetime` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
 | `$timezone` | **string&#124;\DateTimeZone&#124;null** | A timezone string, UTC offset or DateTimeZone object;<br />defaults to the site timezone; this parameter is ignored<br />if the `$datetime` parameter is a DatTime object. |
 | `$with_fallback` | **bool** | Whether to return a DateTime object even when the date data is<br />invalid or not; defaults to `true`. |
 
@@ -769,7 +907,7 @@ The built date interval object.
 Determine if "now" is between two dates.
 
 ```php
-public static is_now(string|\DateTime|int $start_date, string|\DateTime|int $end_date, string|\DateTime|int $now = &#039;now&#039;): bool
+public static is_now(string|\DateTimeInterface|int $start_date, string|\DateTimeInterface|int $end_date, string|\DateTimeInterface|int $now = &#039;now&#039;): bool
 ```
 
 
@@ -783,9 +921,9 @@ public static is_now(string|\DateTime|int $start_date, string|\DateTime|int $end
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$start_date` | **string&#124;\DateTime&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. |
-| `$end_date` | **string&#124;\DateTime&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. |
-| `$now` | **string&#124;\DateTime&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. Defaults to &#039;now&#039;. |
+| `$start_date` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. |
+| `$end_date` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. |
+| `$now` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or a timestamp. Defaults to &#039;now&#039;. |
 
 
 **Return Value:**
@@ -858,7 +996,7 @@ like `strtotime`, or not.
 Returns true if the timestamp is a weekday.
 
 ```php
-public static is_weekday(int $curdate): bool
+public static is_weekday(string|int|\DateTime|\DateTimeImmutable $curdate): bool
 ```
 
 
@@ -872,7 +1010,7 @@ public static is_weekday(int $curdate): bool
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$curdate` | **int** | A timestamp. |
+| `$curdate` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | A timestamp or date. |
 
 
 **Return Value:**
@@ -888,7 +1026,7 @@ If the timestamp is a weekday.
 Returns true if the timestamp is a weekend.
 
 ```php
-public static is_weekend(int $curdate): bool
+public static is_weekend(string|int|\DateTime|\DateTimeImmutable $curdate): bool
 ```
 
 
@@ -902,7 +1040,7 @@ public static is_weekend(int $curdate): bool
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$curdate` | **int** | A timestamp. |
+| `$curdate` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | A timestamp or date. |
 
 
 **Return Value:**
@@ -920,7 +1058,7 @@ Returns the weekday of the last day of the month in
 false if this cannot be established.
 
 ```php
-public static last_day_in_month(mixed $month): int|bool
+public static last_day_in_month(string|int|\DateTime|\DateTimeImmutable $month): \DateTime|\DateTimeImmutable|bool
 ```
 
 
@@ -934,7 +1072,7 @@ public static last_day_in_month(mixed $month): int|bool
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$month` | **mixed** |  |
+| `$month` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** |  |
 
 
 
@@ -946,7 +1084,7 @@ public static last_day_in_month(mixed $month): int|bool
 Returns the meridian (am or pm) only.
 
 ```php
-public static meridian_only(string $date): string
+public static meridian_only(string|int|\DateTime|\DateTimeImmutable $date): string
 ```
 
 
@@ -960,7 +1098,7 @@ public static meridian_only(string $date): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date` | **string** | The date. |
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
 
 
 **Return Value:**
@@ -976,7 +1114,7 @@ The meridian only in DB format.
 Returns the minute only.
 
 ```php
-public static minutes_only(string $date): string
+public static minutes_only(string|int|\DateTime|\DateTimeImmutable $date): string
 ```
 
 
@@ -990,7 +1128,7 @@ public static minutes_only(string $date): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date` | **string** | The date. |
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
 
 
 **Return Value:**
@@ -1006,10 +1144,10 @@ The minute only.
 Builds a date object from a given datetime and timezone.
 
 ```php
-public static mutable(string|\DateTime|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true): \DateTime|false
+public static mutable(string|\DateTimeInterface|int $datetime = &#039;now&#039;, string|\DateTimeZone|null $timezone = null, bool $with_fallback = true): \DateTime|false
 ```
 
-An alias of the `Dates::build_date_object` function.
+
 
 * This method is **static**.
 
@@ -1020,7 +1158,7 @@ An alias of the `Dates::build_date_object` function.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$datetime` | **string&#124;\DateTime&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
+| `$datetime` | **string&#124;\DateTimeInterface&#124;int** | A `strtotime` parsable string, a DateTime object or<br />a timestamp; defaults to `now`. |
 | `$timezone` | **string&#124;\DateTimeZone&#124;null** | A timezone string, UTC offset or DateTimeZone object;<br />defaults to the site timezone; this parameter is ignored<br />if the `$datetime` parameter is a DatTime object. |
 | `$with_fallback` | **bool** | Whether to return a DateTime object even when the date data is<br />invalid or not; defaults to `true`. |
 
@@ -1066,11 +1204,11 @@ The ordinal for that number.
 
 ### range_coincides
 
-Given 2 datetime ranges, return whether the 2nd one occurs during the 1st one
+Alias for range_overlaps(). Given 2 datetime ranges, return whether the 2nd one occurs during the 1st one
 Note: all params should be unix timestamps
 
 ```php
-public static range_coincides(int $range_1_start, int $range_1_end, int $range_2_start, int $range_2_end): bool
+public static range_coincides(string|\DateTimeInterface|int $range_1_start, string|\DateTimeInterface|int $range_1_end, string|\DateTimeInterface|int $range_2_start, string|\DateTimeInterface|int $range_2_end): bool
 ```
 
 
@@ -1084,10 +1222,40 @@ public static range_coincides(int $range_1_start, int $range_1_end, int $range_2
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$range_1_start` | **int** | timestamp for start of the first range |
-| `$range_1_end` | **int** | timestamp for end of the first range |
-| `$range_2_start` | **int** | timestamp for start of the second range |
-| `$range_2_end` | **int** | timestamp for end of the second range |
+| `$range_1_start` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for start of the first range |
+| `$range_1_end` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for end of the first range |
+| `$range_2_start` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for start of the second range |
+| `$range_2_end` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for end of the second range |
+
+
+
+
+***
+
+### range_overlaps
+
+Given 2 datetime ranges, return whether the 2nd one occurs during the 1st one
+Note: all params should be unix timestamps
+
+```php
+public static range_overlaps(string|\DateTimeInterface|int $range_1_start, string|\DateTimeInterface|int $range_1_end, string|\DateTimeInterface|int $range_2_start, string|\DateTimeInterface|int $range_2_end): bool
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$range_1_start` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for start of the first range |
+| `$range_1_end` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for end of the first range |
+| `$range_2_start` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for start of the second range |
+| `$range_2_end` | **string&#124;\DateTimeInterface&#124;int** | timestamp, dates string, or DateTimeInterface for end of the second range |
 
 
 
@@ -1100,7 +1268,7 @@ Accepts a string representing a date/time and attempts to convert it to
 the specified format, returning an empty string if this is not possible.
 
 ```php
-public static reformat( $dt_string,  $new_format): string
+public static reformat(string|int|\DateTime|\DateTimeImmutable $dt_string, string $new_format): string
 ```
 
 
@@ -1114,8 +1282,8 @@ public static reformat( $dt_string,  $new_format): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$dt_string` | **** |  |
-| `$new_format` | **** |  |
+| `$dt_string` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** |  |
+| `$new_format` | **string** |  |
 
 
 
@@ -1127,7 +1295,7 @@ public static reformat( $dt_string,  $new_format): string
 Returns as string the nearest half a hour for a given valid string datetime.
 
 ```php
-public static round_nearest_half_hour(string $date): string
+public static round_nearest_half_hour(string|int|\DateTime|\DateTimeImmutable $date): \DateTime|\DateTimeImmutable
 ```
 
 
@@ -1141,12 +1309,42 @@ public static round_nearest_half_hour(string $date): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date` | **string** | Valid DateTime string. |
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | Valid DateTime string. |
 
 
 **Return Value:**
 
 Rounded datetime string
+
+
+
+***
+
+### seconds_only
+
+Returns the seconds only.
+
+```php
+public static seconds_only(string|int|\DateTime|\DateTimeImmutable $date): string
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
+
+
+**Return Value:**
+
+The seconds only.
 
 
 
@@ -1215,7 +1413,7 @@ A sorted array of DateTime objects.
 Returns the number of seconds (absolute value) between two dates/times.
 
 ```php
-public static time_between(string $date1, string $date2): int
+public static time_between(string|int|\DateTime|\DateTimeImmutable $date1, string|int|\DateTime|\DateTimeImmutable $date2): int
 ```
 
 
@@ -1229,8 +1427,8 @@ public static time_between(string $date1, string $date2): int
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date1` | **string** | The first date. |
-| `$date2` | **string** | The second date. |
+| `$date1` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The first date. |
+| `$date2` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The second date. |
 
 
 **Return Value:**
@@ -1246,7 +1444,7 @@ The number of seconds between the dates.
 Returns the time only.
 
 ```php
-public static time_only(string $date): string
+public static time_only(string|int|\DateTime|\DateTimeImmutable $date): string
 ```
 
 
@@ -1260,7 +1458,7 @@ public static time_only(string $date): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$date` | **string** | The date. |
+| `$date` | **string&#124;int&#124;\DateTime&#124;\DateTimeImmutable** | The date. |
 
 
 **Return Value:**
@@ -1422,4 +1620,4 @@ public static wp_locale_weekday(int|string $weekday, string $format = &#039;week
 
 
 ***
-> Automatically generated from source code comments on 2023-03-30 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2023-08-18 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)

@@ -229,6 +229,26 @@ This is a close copy of WooCommerce's wc_timezone_string() method
 
 ***
 
+### get_system_timezone
+
+Gets the system timezone.
+
+```php
+public static get_system_timezone(): \DateTimeZone
+```
+
+
+
+* This method is **static**.
+
+
+
+
+
+
+
+***
+
 ### get_timezone
 
 Returns a DateTimeZone object matching the representation in $tzstring where
@@ -613,4 +633,4 @@ Based on the core WP code found in wp-admin/options-general.php.
 
 
 ***
-> Automatically generated from source code comments on 2023-03-30 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2023-08-18 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
