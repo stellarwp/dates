@@ -804,6 +804,32 @@ class Dates {
 	}
 
 	/**
+	 * Is the given date after the date to compare?
+	 *
+	 * @since 1.1.3
+	 *
+	 * @param string|DateTimeInterface|int $date
+	 * @param string|DateTimeInterface|int $date_to_compare
+	 * @return boolean
+	 */
+	public static function is_after( $date, $date_to_compare ): bool {
+		return static::get( $date ) > static::get( $date_to_compare );
+	}
+
+	/**
+	 * Is the given date before the date to compare?
+	 *
+	 * @since 1.1.3
+	 *
+	 * @param string|DateTimeInterface|int $date
+	 * @param string|DateTimeInterface|int $date_to_compare
+	 * @return boolean
+	 */
+	public static function is_before( $date, $date_to_compare ): bool {
+		return static::get( $date ) < static::get( $date_to_compare );
+	}
+
+	/**
 	 * Determine if the given date is between two dates.
 	 *
 	 * @since 1.1.2

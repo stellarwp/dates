@@ -930,6 +930,60 @@ The built date interval object.
 
 ***
 
+### is_after
+
+Is the given date after the date to compare?
+
+```php
+public static is_after(string|\DateTimeInterface|int $date, string|\DateTimeInterface|int $date_to_compare): bool
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;\DateTimeInterface&#124;int** |  |
+| `$date_to_compare` | **string&#124;\DateTimeInterface&#124;int** |  |
+
+
+
+
+***
+
+### is_before
+
+Is the given date before the date to compare?
+
+```php
+public static is_before(string|\DateTimeInterface|int $date, string|\DateTimeInterface|int $date_to_compare): bool
+```
+
+
+
+* This method is **static**.
+
+
+
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | **string&#124;\DateTimeInterface&#124;int** |  |
+| `$date_to_compare` | **string&#124;\DateTimeInterface&#124;int** |  |
+
+
+
+
+***
+
 ### is_between
 
 Determine if the given date is between two dates.
@@ -1831,4 +1885,4 @@ public static wp_locale_weekday(int|string $weekday, string $format = &#039;week
 
 
 ***
-> Automatically generated from source code comments on 2023-08-19 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2024-09-11 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
