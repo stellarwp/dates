@@ -52,6 +52,8 @@ composer require stellarwp/dates
   * [hour_only](/docs/classes/StellarWP/Dates/Dates.md#hour_only)
   * [immutable](/docs/classes/StellarWP/Dates/Dates.md#immutable)
   * [interval](/docs/classes/StellarWP/Dates/Dates.md#interval)
+  * [is_after](/docs/classes/StellarWP/Dates/Dates.md#is_after)
+  * [is_before](/docs/classes/StellarWP/Dates/Dates.md#is_before)
   * [is_between](/docs/classes/StellarWP/Dates/Dates.md#is_date_between)
   * [is_now](/docs/classes/StellarWP/Dates/Dates.md#is_now) - calls `is_between()` with a different parameter order, where the date to look for is last and optional.
   * [is_timestamp](/docs/classes/StellarWP/Dates/Dates.md#is_timestamp)

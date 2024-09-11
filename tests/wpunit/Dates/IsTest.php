@@ -49,6 +49,74 @@ class IsTest extends DatesTestCase {
 		Dates::$cache = [];
 	}
 
+	public function get_date_after_dates() {
+		yield 'date before comparison' => [
+			'date' => '2024-01-01',
+			'date_to_compare' => '2024-01-02',
+			'expected' => false,
+		];
+
+		yield 'date before comparison with time' => [
+			'date' => '2024-01-01 09:59:59',
+			'date_to_compare' => '2024-01-02 10:00:00',
+			'expected' => false,
+		];
+
+		yield 'date after comparison' => [
+			'date' => '2024-01-05',
+			'date_to_compare' => '2024-01-02',
+			'expected' => true,
+		];
+
+		yield 'date after comparison with time' => [
+			'date' => '2024-01-02 10:00:00',
+			'date_to_compare' => '2024-01-02 09:59:59',
+			'expected' => true,
+		];
+	}
+
+	/**
+	 * @dataProvider get_date_after_dates
+	 * @test
+	 */
+	public function it_identifies_when_date_is_after_another_date( $date, $date_to_compare, $expected ) {
+		$this->assertEquals( $expected, Dates::is_after( $date, $date_to_compare ) );
+	}
+
+	public function get_date_before_dates() {
+		yield 'date before comparison' => [
+			'date' => '2024-01-01',
+			'date_to_compare' => '2024-01-02',
+			'expected' => true,
+		];
+
+		yield 'date before comparison with time' => [
+			'date' => '2024-01-01 09:59:59',
+			'date_to_compare' => '2024-01-02 10:00:00',
+			'expected' => true,
+		];
+
+		yield 'date after comparison' => [
+			'date' => '2024-01-05',
+			'date_to_compare' => '2024-01-02',
+			'expected' => false,
+		];
+
+		yield 'date after comparison with time' => [
+			'date' => '2024-01-02 10:00:00',
+			'date_to_compare' => '2024-01-02 09:59:59',
+			'expected' => false,
+		];
+	}
+
+	/**
+	 * @dataProvider get_date_before_dates
+	 * @test
+	 */
+	public function it_identifies_when_date_is_before_another_date( $date, $date_to_compare, $expected ) {
+		$this->assertEquals( $expected, Dates::is_before( $date, $date_to_compare ) );
+	}
+
 	public function get_date_between_dates() {
 		yield 'date in middle of dates' => [
 			'start'    => '2020-01-01',
