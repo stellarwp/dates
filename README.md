@@ -20,6 +20,7 @@ composer require stellarwp/dates
 
 ## Documentation
 
+* [How dates are built](#how-dates-are-built)
 * [Constants](#constants)
 * [Dates](/docs/classes/StellarWP/Dates/Dates.md)
   * [build_date_object](/docs/classes/StellarWP/Dates/Dates.md#build_date_object) - alias for `mutable()`
@@ -108,6 +109,41 @@ composer require stellarwp/dates
   * [to_utc](/docs/classes/StellarWP/Dates/Timezones.md#to_utc)
   * [wp_timezone_abbr](/docs/classes/StellarWP/Dates/Timezones.md#wp_timezone_abbr)
   * [wp_timezone_string](/docs/classes/StellarWP/Dates/Timezones.md#wp_timezone_string)
+
+### How dates are built
+
+The `Dates::get()` method accepts a number of parameters (a date, a timezone, a fallback date, and an immutable flag). However, you can get the current datetime with a simple call to `Dates::get()` like so:
+
+```php
+use StellarWP\Dates\Dates;
+
+$date = Dates::get();
+```
+
+Whether you are using that simple approach or something more complex, here's what is happening under the hood:
+
+```mermaid
+flowchart TD
+  is_immutable{"Immutable?"} -- yes --> yes_immutable["All dates returned will be Date_I18n_Immutable"]
+  is_immutable -- no --> no_immutable["All dates returned will be Date_I18n"]
+  yes_immutable --> is_timezone_set{"Is the timezone set?"}
+  no_immutable --> is_timezone_set
+  is_timezone_set -- yes --> create_timezone["Create a DateTimeZone object from $timezone"]
+  is_timezone_set -- no --> is_wp_timezone_set{"Is there a WP timezone string?"}
+  is_wp_timezone_set -- yes --> use_wp_timezone["$timezone = WP timezone string"]
+  is_wp_timezone_set -- no --> is_timezone_valid{"Is $timezone valid?"}
+  is_timezone_valid -- yes --> create_timezone
+  is_timezone_valid -- no --> use_utc["$timezone = UTC"]
+  use_wp_timezone --> create_timezone
+  use_utc --> create_timezone
+  create_timezone --> create_date["$date = date object using $datetime with $timezone"]
+  create_date --> is_error{Error when creating date object?}
+  is_error -- yes --> should_fallback{"Is a fallback date desired?"}
+  should_fallback -- no --> no_fallback((Return false))
+  should_fallback -- yes --> yes_fallaback["$date = 'now' date object with $timezone"]
+  is_error -- no --> final
+  yes_fallaback --> final((Return $date))
+```
 
 ### Constants
 
